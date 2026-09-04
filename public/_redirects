@@ -7,13 +7,15 @@
 #
 # /admin is a client-side-routed SPA section (gated by Cloudflare Access,
 # never prerendered) — it needs the fallback so any /admin/* sub-path is
-# served the same bundle and handled by the router. Points at a flat,
-# non-"index.html" shell file (dist/admin-shell.html, written by
-# scripts/prerender.mjs) rather than anything nested under /admin/ itself —
-# Cloudflare auto-canonicalizes index.html/directory-index URLs, and a
-# rewrite target whose own canonical form still matches the wildcard it's
-# serving gets flagged as a redirect loop and silently dropped (confirmed
-# via `wrangler pages dev` with dist/index.html and dist/admin/index.html
-# both rejected before landing on this).
-/admin    /admin-shell.html   200
-/admin/*  /admin-shell.html   200
+# served the same bundle and handled by the router, WITHOUT changing the
+# browser's URL (that would break React Router reading the real path).
+#
+# The rewrite target is dist/admin-shell — deliberately no file extension.
+# Confirmed against the real Cloudflare Pages edge: a target ending in
+# .html (even a flat, non-nested one) still gets Cloudflare's automatic
+# extension-stripping canonicalization applied when served, which turns
+# this 200 "rewrite" into a real 308 that changes the visible URL and
+# breaks client-side routing. No extension means nothing to strip.
+# Content-Type is set explicitly in public/_headers to compensate.
+/admin    /admin-shell   200
+/admin/*  /admin-shell   200

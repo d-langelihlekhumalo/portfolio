@@ -106,15 +106,18 @@ function buildSitemap(routes, posts) {
 
 async function writeAdminShell() {
   // /admin is client-side-routed (gated, never prerendered) and needs its
-  // own HTML shell for public/_redirects to rewrite to. Deliberately a flat,
-  // non-"index.html" filename that doesn't live under /admin/ itself:
-  // Cloudflare auto-canonicalizes "index.html"/directory-index URLs, and
-  // *any* rewrite target whose own canonical form still matches the
-  // wildcard it's serving gets flagged as a redirect loop and silently
-  // dropped — confirmed via `wrangler pages dev` with both dist/index.html
-  // and dist/admin/index.html as targets before landing on this.
+  // own HTML shell for public/_redirects to rewrite to. Deliberately a flat
+  // filename with NO extension at all — confirmed against the real
+  // Cloudflare Pages edge (not just `wrangler pages dev`) that a
+  // `_redirects` 200-status rewrite whose target ends in .html still gets
+  // Cloudflare's automatic extension-stripping canonicalization applied
+  // when served, turning the intended same-URL rewrite into a real 308
+  // that changes the browser's URL and breaks client-side routing. A
+  // target with no extension has nothing for that canonicalization to
+  // strip. Content-Type is set explicitly in public/_headers since
+  // Cloudflare can't infer text/html from an extensionless file.
   const shell = await readFile(path.join(root, 'dist', 'index.html'), 'utf-8')
-  const adminShellPath = path.join(root, 'dist', 'admin-shell.html')
+  const adminShellPath = path.join(root, 'dist', 'admin-shell')
   await writeFile(adminShellPath, shell, 'utf-8')
   console.log(`[prerender] wrote ${path.relative(root, adminShellPath)} (admin SPA shell)`)
 }

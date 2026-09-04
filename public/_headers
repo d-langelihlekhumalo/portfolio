@@ -20,3 +20,10 @@
 /api/*
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-store
+
+# The admin SPA shell has no file extension on purpose (see public/_redirects)
+# so Cloudflare can't infer its type — set it explicitly.
+/admin-shell
+  Content-Type: text/html; charset=utf-8
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
