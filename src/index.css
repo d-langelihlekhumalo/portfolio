@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #0F172A;
+    --surface: #1E293B;
+    --text: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --border: rgba(255, 255, 255, 0.08);
+  }
+
+  :root.light {
+    --background: #FFFFFF;
+    --surface: #F1F5F9;
+    --text: #0F172A;
+    --text-secondary: #475569;
+    --border: rgba(0, 0, 0, 0.12);
+  }
+
+  html {
+    @apply scroll-smooth;
+    color-scheme: dark light;
+  }
+
+  html.light {
+    color-scheme: light;
+  }
+
+  body {
+    @apply antialiased transition-colors duration-300;
+    background-color: var(--background);
+    color: var(--text);
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+
+  button {
+    @apply transition-colors duration-200;
+  }
+}
+
+/*
+ * Progressive enhancement for scroll-reveal animations.
+ *
+ * Sections start at opacity-0 and fade in once an IntersectionObserver confirms
+ * they've scrolled into view. That's a JS-only mechanism, so anything that can't
+ * run JS — the prerendered HTML search engines and social crawlers receive, or a
+ * browser with JS disabled — would otherwise see permanently invisible content.
+ *
+ * index.html sets `js-animations` on <html> via a blocking inline script the
+ * instant JS is available, before first paint. Until that class is present, this
+ * rule neutralizes the hidden state so content just renders normally.
+ */
+html:not(.js-animations) [class*='opacity-0'] {
+  opacity: 1 !important;
+  transform: none !important;
+}

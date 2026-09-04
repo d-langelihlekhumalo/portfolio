@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en-ZA">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Blocking on purpose: marks JS as available before first paint so scroll-reveal
+         animations (see index.css) only run for clients that can actually run them. -->
+    <script>document.documentElement.classList.add('js-animations')</script>
+
+    <!-- Primary Meta Tags -->
+    <title>Andile Khumalo — Freelance .NET &amp; React Developer</title>
+    <meta name="title" content="Andile Khumalo — Freelance .NET &amp; React Developer" />
+    <meta name="description" content="Freelance full-stack developer in Cape Town specializing in .NET and React. Available for contract work — reliable software, delivered end to end." />
+    <meta name="keywords" content="freelance developer, freelance .NET developer, freelance React developer, full stack developer Cape Town, hire a developer, contract software developer, ASP.NET Core developer, React developer South Africa" />
+    <meta name="author" content="Andile Khumalo" />
+    <meta name="theme-color" content="#0F172A" />
+
+    <!-- Inter is self-hosted (@fontsource-variable/inter, imported in main.tsx) — no external font requests -->
+    <meta name="color-scheme" content="dark light" />
+
+    <!-- Icons -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="%VITE_SITE_URL%/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="profile" />
+    <meta property="profile:first_name" content="Andile" />
+    <meta property="profile:last_name" content="Khumalo" />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
+    <meta property="og:title" content="Andile Khumalo — Freelance .NET &amp; React Developer" />
+    <meta property="og:description" content="Freelance full-stack developer in Cape Town specializing in .NET and React. Available for contract work — reliable software, delivered end to end." />
+    <meta property="og:image" content="%VITE_SITE_URL%/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Andile Khumalo" />
+    <meta property="og:locale" content="en_ZA" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="%VITE_SITE_URL%/" />
+    <meta name="twitter:title" content="Andile Khumalo — Freelance .NET &amp; React Developer" />
+    <meta name="twitter:description" content="Freelance full-stack developer in Cape Town specializing in .NET and React. Available for contract work — reliable software, delivered end to end." />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/og-image.png" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      "mainEntity": {
+        "@type": "Person",
+        "name": "Andile Khumalo",
+        "url": "%VITE_SITE_URL%",
+        "email": "d.langelihlekhumalo@gmail.com",
+        "jobTitle": "Full Stack Developer",
+        "image": "%VITE_SITE_URL%/og-image.png",
+        "description": "Freelance full-stack developer specializing in .NET and React, available for contract work alongside a full-time software developer role.",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Cape Town",
+          "addressCountry": "ZA"
+        },
+        "knowsAbout": [
+          "Full Stack Development",
+          ".NET",
+          "ASP.NET Core",
+          "C#",
+          "React",
+          "TypeScript",
+          "JavaScript",
+          "REST API Design",
+          "Cloud Architecture",
+          "Microsoft Azure",
+          "SQL Server",
+          "PostgreSQL"
+        ],
+        "knowsLanguage": ["en"],
+        "alumniOf": {
+          "@type": "CollegeOrUniversity",
+          "name": "Mangosuthu University of Technology"
+        },
+        "worksFor": {
+          "@type": "Organization",
+          "name": "Advania SA"
+        },
+        "makesOffer": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Full Stack Web Development" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "API Development & Integration" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Cloud Deployment & Architecture" } }
+        ],
+        "sameAs": [
+          "https://github.com/d-langelihlekhumalo",
+          "https://linkedin.com/in/andile-khumalo-1087441b7"
+        ]
+      }
+    }
+    </script>
+
+    <!-- Robots Meta -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+    <!-- Additional Meta Tags -->
+    <meta name="language" content="English" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

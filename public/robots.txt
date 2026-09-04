@@ -1,0 +1,6 @@
+# Update the domain below if you move off *.pages.dev (keep in sync with sitemap.xml).
+
+User-agent: *
+Allow: /
+
+Sitemap: https://andilekhumalo.pages.dev/sitemap.xml

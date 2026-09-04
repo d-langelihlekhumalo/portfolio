@@ -1,0 +1,17 @@
+# Andile Khumalo
+
+> Freelance full-stack developer based in Cape Town, South Africa, specializing in .NET and React. Available for freelance and contract work alongside a full-time software developer role.
+
+## Background
+
+- Full-time Software Developer at Advania SA (June 2024–present); previously Clickatell (2023–2024) and Bull Tech Services (2022–2023).
+- National Diploma in Information Technology, Mangosuthu University of Technology (2022).
+- Core stack: C#, ASP.NET Core, Entity Framework Core, React, TypeScript, Tailwind CSS, SQL Server, PostgreSQL, Microsoft Azure, Docker.
+- Services: full stack web development, API design & integration, cloud deployment & architecture, legacy system modernization, performance optimization.
+
+## Links
+
+- Site: https://andilekhumalo.pages.dev/
+- GitHub: https://github.com/d-langelihlekhumalo
+- LinkedIn: https://linkedin.com/in/andile-khumalo-1087441b7
+- Contact: d.langelihlekhumalo@gmail.com

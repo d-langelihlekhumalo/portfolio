@@ -1,0 +1,7 @@
+{
+  // Cloudflare Pages project config — https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+  // "name" becomes the project and its *.pages.dev subdomain. Change it before the first deploy if you want a different subdomain.
+  "name": "andilekhumalo",
+  "compatibility_date": "2025-09-04",
+  "pages_build_output_dir": "dist"
+}
