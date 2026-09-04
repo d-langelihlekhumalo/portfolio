@@ -33,9 +33,10 @@ async function main() {
 
   const url = server.resolvedUrls?.local?.[0] ?? `http://127.0.0.1:${server.config.preview.port}/`
 
-  // Use the system-installed Chrome rather than Playwright's managed browser
-  // build — keeps this script working without a separate `playwright install`.
-  const browser = await chromium.launch({ channel: 'chrome' })
+  // Playwright's own managed Chromium build (not the system browser) — this
+  // is what `npx playwright install chromium` provisions, both locally and
+  // in CI, so the same browser build runs everywhere this script does.
+  const browser = await chromium.launch()
 
   try {
     // Dark is the site's default theme (no stored preference / no system

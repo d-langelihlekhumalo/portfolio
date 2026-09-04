@@ -1,0 +1,49 @@
+name: Deploy to Cloudflare Pages
+
+# Pushes to main deploy to production; every other push/PR gets its own
+# Cloudflare Pages preview deployment on the same project.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: cf-pages-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # lets wrangler-action comment the preview URL on the PR
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The build's prerender step (scripts/prerender.mjs) needs a real
+      # browser to render the page into static HTML for crawlers/non-JS
+      # clients. Playwright's own managed Chromium build, not the runner's
+      # system browser — same mechanism used locally.
+      - name: Install Chromium for prerendering
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=andilekhumalo --branch=${{ github.head_ref || github.ref_name }}

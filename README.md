@@ -63,26 +63,44 @@ When a custom domain goes live, update `.env` **and** the domain strings in
 
 Build output: `dist/` · Build command: `npm run build` · Node: 20+
 
-`public/_headers` (security + asset caching), `public/_redirects` (SPA fallback) and
-`wrangler.jsonc` (project name → `*.pages.dev` subdomain) are committed and picked up
-automatically.
+`public/_headers` (security + asset caching) and `public/_redirects` (SPA fallback)
+are committed and picked up automatically. `wrangler.jsonc` names the Pages project
+(`andilekhumalo`) so CLI and CI deploys always target the same project.
 
-### Option A — Git integration (recommended)
+The build's prerender step (`scripts/prerender.mjs`) needs a real browser (Playwright's
+managed Chromium — `npx playwright install chromium`), so **deploys run through GitHub
+Actions** ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)) rather than
+Cloudflare's own Git-integration builds, which can't guarantee a browser is available in
+their build image.
 
-1. Push this repo to GitHub.
-2. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-3. Framework preset: **Vite**. Build command `npm run build`, output directory `dist`.
-4. Add environment variable `VITE_SITE_URL`.
-5. Every push to the default branch deploys; pull requests get preview URLs.
+### Continuous deployment — GitHub Actions (this repo's setup)
 
-### Option B — Wrangler CLI (fastest first deploy)
+Push to `main` → deploys to production. Push any other branch or open a PR → its own
+Cloudflare Pages preview URL, commented on the PR automatically.
+
+One-time setup, in the Cloudflare dashboard:
+
+1. **My Profile → API Tokens → Create Token** → use the "Edit Cloudflare Workers"
+   template (covers Pages) or a custom token with **Account → Cloudflare Pages → Edit**.
+2. Copy your **Account ID** (right sidebar of any Workers & Pages page).
+3. In the GitHub repo → **Settings → Secrets and variables → Actions**, add:
+   - `CLOUDFLARE_API_TOKEN` — the token from step 1
+   - `CLOUDFLARE_ACCOUNT_ID` — the ID from step 2
+4. The Pages project (`andilekhumalo`) is created automatically on the first successful
+   run — no need to create it by hand.
+
+> If a Pages project was previously connected via **Connect to Git** in the dashboard,
+> disable its automatic deployments (Settings → Builds & deployments) or the same push
+> will trigger two competing deploys. The Action should be the only thing deploying.
+
+### Manual deploy (Wrangler CLI)
 
 ```bash
 npm run deploy        # runs the build, then: wrangler pages deploy dist
 ```
 
-First run opens a browser to authorize Wrangler with your Cloudflare account and
-creates the Pages project named in `wrangler.jsonc`.
+Useful for a one-off deploy from your machine; first run opens a browser to authorize
+Wrangler with your Cloudflare account.
 
 ### Custom domain
 
