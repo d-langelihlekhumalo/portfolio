@@ -16,6 +16,7 @@ dist-ssr
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts
+src/generated/
 
 # Cloudflare / Wrangler
 .wrangler/

@@ -2,5 +2,7 @@
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
 
 Sitemap: https://andilekhumalo.pages.dev/sitemap.xml

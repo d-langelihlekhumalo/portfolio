@@ -1,3 +1,7 @@
 # Cloudflare Pages — https://developers.cloudflare.com/pages/configuration/redirects/
-# SPA fallback: existing static files are served first; everything else gets index.html.
-/*    /index.html    200
+#
+# Every public route (/, /blog, /blog/:slug) is its own real prerendered
+# static file (see scripts/prerender.mjs) — no SPA fallback needed, so a
+# nonexistent URL correctly 404s instead of silently serving the homepage.
+#
+# /admin gets its own client-side-routing fallback rule once it exists.

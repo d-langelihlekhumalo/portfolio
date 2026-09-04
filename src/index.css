@@ -59,3 +59,94 @@ html:not(.js-animations) [class*='opacity-0'] {
   opacity: 1 !important;
   transform: none !important;
 }
+
+/*
+ * Blog post typography + syntax highlighting.
+ *
+ * Hand-picked rules using the site's existing CSS-var tokens rather than a
+ * prebuilt highlight.js theme stylesheet, so code blocks respect dark/light
+ * mode the same way the rest of the site does.
+ */
+.prose-blog {
+  color: var(--text-secondary);
+  line-height: 1.75;
+}
+
+.prose-blog h2 {
+  @apply text-2xl font-bold text-text mt-10 mb-4;
+}
+
+.prose-blog h3 {
+  @apply text-xl font-bold text-text mt-8 mb-3;
+}
+
+.prose-blog p {
+  @apply mb-5;
+}
+
+.prose-blog ul,
+.prose-blog ol {
+  @apply mb-5 pl-6 space-y-2;
+}
+
+.prose-blog ul {
+  list-style-type: disc;
+}
+
+.prose-blog ol {
+  list-style-type: decimal;
+}
+
+.prose-blog a {
+  color: theme('colors.primary');
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-blog blockquote {
+  @apply border-l-2 border-primary/40 pl-4 italic my-5;
+}
+
+.prose-blog table {
+  @apply w-full text-sm my-5;
+}
+
+.prose-blog th,
+.prose-blog td {
+  @apply border border-border px-3 py-2 text-left;
+}
+
+.prose-blog pre {
+  @apply rounded-lg p-4 my-5 overflow-x-auto text-sm;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.prose-blog pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.prose-blog code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* highlight.js token colors, mapped onto the site's palette */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal {
+  color: theme('colors.primary');
+}
+.hljs-string,
+.hljs-attr {
+  color: theme('colors.success');
+}
+.hljs-comment {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+.hljs-number,
+.hljs-title.function_ {
+  color: #f0abfc;
+}
