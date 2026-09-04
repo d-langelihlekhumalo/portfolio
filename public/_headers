@@ -11,19 +11,22 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Gated admin area and its API — never indexed, never cached. Cloudflare
-# Access is the actual gate; this is defense-in-depth, not the auth itself.
-/admin/*
-  X-Robots-Tag: noindex, nofollow
-  Cache-Control: no-store
-
 /api/*
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-store
 
-# The admin SPA shell has no file extension on purpose (see public/_redirects)
-# so Cloudflare can't infer its type — set it explicitly.
-/admin-shell
+# Gated admin area — never indexed, never cached (Cloudflare Access is the
+# actual gate; this is defense-in-depth, not the auth itself). Content-Type
+# is set explicitly because these paths serve dist/admin-shell (see
+# public/_redirects), which has no file extension for Cloudflare to infer a
+# type from — _headers rules match the REQUESTED path, not the _redirects
+# rewrite target, so they're declared here rather than on /admin-shell.
+/admin
+  Content-Type: text/html; charset=utf-8
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+
+/admin/*
   Content-Type: text/html; charset=utf-8
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-store
