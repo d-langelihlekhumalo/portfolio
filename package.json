@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/generate-blog-index.mjs && vite",
-    "build": "tsc -b && node scripts/generate-blog-index.mjs && vite build && node scripts/prerender.mjs",
-    "build:no-prerender": "tsc -b && node scripts/generate-blog-index.mjs && vite build",
+    "build": "node scripts/generate-blog-index.mjs && tsc -b && vite build && node scripts/prerender.mjs",
+    "build:no-prerender": "node scripts/generate-blog-index.mjs && tsc -b && vite build",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler pages deploy dist",
     "test": "playwright test",
