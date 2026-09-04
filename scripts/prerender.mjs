@@ -104,8 +104,26 @@ function buildSitemap(routes, posts) {
   )
 }
 
+async function writeAdminShell() {
+  // /admin is client-side-routed (gated, never prerendered) and needs its
+  // own HTML shell for public/_redirects to rewrite to. Deliberately a flat,
+  // non-"index.html" filename that doesn't live under /admin/ itself:
+  // Cloudflare auto-canonicalizes "index.html"/directory-index URLs, and
+  // *any* rewrite target whose own canonical form still matches the
+  // wildcard it's serving gets flagged as a redirect loop and silently
+  // dropped — confirmed via `wrangler pages dev` with both dist/index.html
+  // and dist/admin/index.html as targets before landing on this.
+  const shell = await readFile(path.join(root, 'dist', 'index.html'), 'utf-8')
+  const adminShellPath = path.join(root, 'dist', 'admin-shell.html')
+  await writeFile(adminShellPath, shell, 'utf-8')
+  console.log(`[prerender] wrote ${path.relative(root, adminShellPath)} (admin SPA shell)`)
+}
+
 async function main() {
   const { routes, posts } = await getRoutes()
+
+  // Must happen before the homepage snapshot below overwrites dist/index.html.
+  await writeAdminShell()
 
   const server = await preview({
     root,

@@ -1,7 +1,19 @@
 # Cloudflare Pages — https://developers.cloudflare.com/pages/configuration/redirects/
 #
 # Every public route (/, /blog, /blog/:slug) is its own real prerendered
-# static file (see scripts/prerender.mjs) — no SPA fallback needed, so a
-# nonexistent URL correctly 404s instead of silently serving the homepage.
+# static file (see scripts/prerender.mjs) — no SPA fallback needed there, so
+# a nonexistent URL correctly 404s (see public/404.html) instead of silently
+# serving the homepage.
 #
-# /admin gets its own client-side-routing fallback rule once it exists.
+# /admin is a client-side-routed SPA section (gated by Cloudflare Access,
+# never prerendered) — it needs the fallback so any /admin/* sub-path is
+# served the same bundle and handled by the router. Points at a flat,
+# non-"index.html" shell file (dist/admin-shell.html, written by
+# scripts/prerender.mjs) rather than anything nested under /admin/ itself —
+# Cloudflare auto-canonicalizes index.html/directory-index URLs, and a
+# rewrite target whose own canonical form still matches the wildcard it's
+# serving gets flagged as a redirect loop and silently dropped (confirmed
+# via `wrangler pages dev` with dist/index.html and dist/admin/index.html
+# both rejected before landing on this).
+/admin    /admin-shell.html   200
+/admin/*  /admin-shell.html   200
