@@ -150,19 +150,32 @@ function AdminApp() {
                 <Badge variant="outline" size="sm">PR</Badge>
               </div>
 
-              <div className="flex flex-wrap gap-4 mt-4">
-                {draft.previewUrl ? (
+              {draft.previewUrl ? (
+                <div className="mt-4 rounded-lg overflow-hidden border border-border bg-background">
+                  <iframe
+                    src={draft.previewUrl}
+                    title={`Preview of ${draft.title}`}
+                    loading="lazy"
+                    className="w-full h-[520px] block"
+                  />
+                </div>
+              ) : (
+                <p className="text-sm text-text-secondary mt-4">
+                  Preview not ready yet — try refreshing shortly.
+                </p>
+              )}
+
+              <div className="flex flex-wrap items-center gap-4 mt-4">
+                {draft.previewUrl && (
                   <a
                     href={draft.previewUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
                   >
-                    Preview
+                    Open preview full-size
                     <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
                   </a>
-                ) : (
-                  <span className="text-sm text-text-secondary">Preview not ready yet — try refreshing shortly</span>
                 )}
                 <a
                   href={draft.url}
