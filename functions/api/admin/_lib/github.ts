@@ -31,6 +31,33 @@ export interface Draft {
   branch: string
   createdAt: string
   url: string
+  /** The blog post's slug, e.g. "some-post" -> reviewable at /blog/some-post
+   * on the preview deployment. Null if the PR doesn't touch exactly one
+   * content/blog/*.md file (unexpected shape — still listed, just without
+   * a direct link to the post itself). */
+  slug: string | null
+}
+
+interface GithubFile {
+  filename: string
+  status: string
+}
+
+const BLOG_POST_PATTERN = /^content\/blog\/([^/]+)\.md$/
+
+async function getChangedPostSlug(token: string, prNumber: number): Promise<string | null> {
+  const res = await fetch(`${API_BASE}/pulls/${prNumber}/files`, { headers: githubHeaders(token) })
+  if (!res.ok) return null
+
+  const files = (await res.json()) as GithubFile[]
+  const postFiles = files
+    .filter((f) => f.status !== 'removed')
+    .map((f) => f.filename.match(BLOG_POST_PATTERN)?.[1])
+    .filter((slug): slug is string => Boolean(slug))
+
+  // Only confident about linking straight to the post if the PR is
+  // unambiguous about which one it is.
+  return postFiles.length === 1 ? postFiles[0] : null
 }
 
 export async function listDraftPRs(token: string): Promise<Draft[]> {
@@ -40,15 +67,18 @@ export async function listDraftPRs(token: string): Promise<Draft[]> {
   if (!res.ok) throw new Error(`GitHub list PRs failed: ${res.status} ${await res.text()}`)
 
   const prs = (await res.json()) as GithubPullRequest[]
-  return prs
-    .filter((pr) => pr.labels?.some((label) => label.name === DRAFT_LABEL))
-    .map((pr) => ({
+  const drafts = prs.filter((pr) => pr.labels?.some((label) => label.name === DRAFT_LABEL))
+
+  return Promise.all(
+    drafts.map(async (pr) => ({
       number: pr.number,
       title: pr.title,
       branch: pr.head.ref,
       createdAt: pr.created_at,
       url: pr.html_url,
-    }))
+      slug: await getChangedPostSlug(token, pr.number),
+    })),
+  )
 }
 
 export async function mergePR(token: string, prNumber: number): Promise<void> {
