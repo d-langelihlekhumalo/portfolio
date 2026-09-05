@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import { HeroVisual } from '@/components'
 
 interface AdminHeaderProps {
@@ -18,7 +20,19 @@ function statusLine(count: number | null): string {
 export function AdminHeader({ draftCount }: AdminHeaderProps) {
   return (
     <header className="relative overflow-hidden border-b border-border bg-surface/40">
-      <div className="max-w-5xl mx-auto px-4 md:px-10 py-10 md:py-14 flex items-center justify-between gap-8">
+      <div className="max-w-5xl mx-auto px-4 md:px-10 pt-6">
+        <nav className="flex items-center gap-5 text-sm text-text-secondary">
+          <Link to="/" className="inline-flex items-center gap-1.5 hover:text-primary transition-colors">
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+            Back to site
+          </Link>
+          <Link to="/blog" className="hover:text-primary transition-colors">
+            View blog
+          </Link>
+        </nav>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 md:px-10 pb-10 md:pb-14 pt-6 md:pt-8 flex items-center justify-between gap-8">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">
             Blog Admin
