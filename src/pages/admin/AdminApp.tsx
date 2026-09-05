@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { Button } from '@/components'
 import { cn } from '@/utils/cn'
+import { AdminHeader } from './AdminHeader'
 import { DraftCard } from './DraftCard'
-import { DraftReviewModal } from './DraftReviewModal'
 import type { Draft } from './types'
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
@@ -19,7 +19,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 /**
- * Gated admin panel: generate a draft post, review it in a modal against its
+ * Gated admin panel: generate a draft post, review it inline against its
  * real Cloudflare Pages preview, then approve (merge -> live) or reject
  * (close the PR). Access to this whole route is enforced by Cloudflare
  * Access at the edge and independently verified server-side by
@@ -31,7 +31,7 @@ function AdminApp() {
   const [error, setError] = useState<string | null>(null)
   const [generating, setGenerating] = useState(false)
   const [topic, setTopic] = useState('')
-  const [reviewing, setReviewing] = useState<Draft | null>(null)
+  const [expandedId, setExpandedId] = useState<number | null>(null)
 
   const refresh = useCallback(async () => {
     setError(null)
@@ -65,30 +65,29 @@ function AdminApp() {
 
   const handleApprove = async (prNumber: number) => {
     await api('/admin/merge', { method: 'POST', body: JSON.stringify({ prNumber }) })
-    setReviewing(null)
+    setExpandedId(null)
     await refresh()
   }
 
   const handleReject = async (prNumber: number) => {
     await api('/admin/reject', { method: 'POST', body: JSON.stringify({ prNumber }) })
-    setReviewing(null)
+    setExpandedId(null)
     await refresh()
   }
 
   return (
     <div className="min-h-screen bg-background text-text">
-      <div className="max-w-3xl mx-auto px-4 md:px-10 py-10">
-        <h1 className="text-3xl font-bold mb-2">Blog Admin</h1>
-        <p className="text-text-secondary mb-8">Generate, review, and publish AI-drafted posts.</p>
+      <AdminHeader draftCount={drafts?.length ?? null} />
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-10">
+      <div className="max-w-5xl mx-auto px-4 md:px-10 py-10">
+        <div className="flex flex-col sm:flex-row gap-3 mb-12 p-4 rounded-xl border border-border bg-surface/40">
           <input
             type="text"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="Topic (optional — leave blank to pick one automatically)"
             className={cn(
-              'flex-1 px-4 py-2 rounded-lg bg-surface border border-border text-text',
+              'flex-1 px-4 py-2 rounded-lg bg-background border border-border text-text',
               'placeholder:text-text-secondary',
               'focus:outline-2 focus:outline-primary focus:outline-offset-2',
             )}
@@ -105,7 +104,7 @@ function AdminApp() {
         )}
 
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-text">Drafts awaiting review</h2>
+          <h2 className="text-lg font-semibold text-text">Drafts</h2>
           <button
             type="button"
             onClick={refresh}
@@ -117,23 +116,24 @@ function AdminApp() {
         </div>
 
         {drafts === null && !error && <p className="text-text-secondary">Loading…</p>}
-        {drafts?.length === 0 && <p className="text-text-secondary">No drafts waiting.</p>}
+        {drafts?.length === 0 && (
+          <p className="text-text-secondary">No drafts waiting. Generate one above.</p>
+        )}
 
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
           {drafts?.map((draft) => (
-            <DraftCard key={draft.number} draft={draft} onReview={setReviewing} />
+            <DraftCard
+              key={draft.number}
+              draft={draft}
+              expanded={expandedId === draft.number}
+              onToggle={(d) => setExpandedId((cur) => (cur === d.number ? null : d.number))}
+              onCollapse={() => setExpandedId(null)}
+              onApprove={handleApprove}
+              onReject={handleReject}
+            />
           ))}
         </div>
       </div>
-
-      {reviewing && (
-        <DraftReviewModal
-          draft={reviewing}
-          onClose={() => setReviewing(null)}
-          onApprove={handleApprove}
-          onReject={handleReject}
-        />
-      )}
     </div>
   )
 }
