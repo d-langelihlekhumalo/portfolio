@@ -1,16 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import { RefreshCw, ExternalLink, Check, X } from 'lucide-react'
-import { Badge, Button } from '@/components'
+import { RefreshCw } from 'lucide-react'
+import { Button } from '@/components'
 import { cn } from '@/utils/cn'
-
-interface Draft {
-  number: number
-  title: string
-  branch: string
-  createdAt: string
-  url: string
-  previewUrl: string | null
-}
+import { DraftCard } from './DraftCard'
+import { DraftReviewModal } from './DraftReviewModal'
+import type { Draft } from './types'
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api${path}`, {
@@ -25,17 +19,19 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 /**
- * Gated admin panel: generate a draft post, review it via its real Cloudflare
- * Pages preview, then approve (merge -> live) or reject (close the PR).
- * Access to this whole route is enforced by Cloudflare Access at the edge and
- * independently verified server-side by functions/api/admin/_middleware.ts —
- * this component assumes it's only ever reached by an authenticated owner.
+ * Gated admin panel: generate a draft post, review it in a modal against its
+ * real Cloudflare Pages preview, then approve (merge -> live) or reject
+ * (close the PR). Access to this whole route is enforced by Cloudflare
+ * Access at the edge and independently verified server-side by
+ * functions/api/admin/_middleware.ts — this component assumes it's only ever
+ * reached by an authenticated owner.
  */
 function AdminApp() {
   const [drafts, setDrafts] = useState<Draft[] | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [busy, setBusy] = useState<number | 'generate' | null>(null)
+  const [generating, setGenerating] = useState(false)
   const [topic, setTopic] = useState('')
+  const [reviewing, setReviewing] = useState<Draft | null>(null)
 
   const refresh = useCallback(async () => {
     setError(null)
@@ -52,7 +48,7 @@ function AdminApp() {
   }, [refresh])
 
   const handleGenerate = async () => {
-    setBusy('generate')
+    setGenerating(true)
     setError(null)
     try {
       await api('/admin/generate', {
@@ -63,34 +59,20 @@ function AdminApp() {
     } catch (err) {
       setError((err as Error).message)
     } finally {
-      setBusy(null)
+      setGenerating(false)
     }
   }
 
   const handleApprove = async (prNumber: number) => {
-    setBusy(prNumber)
-    setError(null)
-    try {
-      await api('/admin/merge', { method: 'POST', body: JSON.stringify({ prNumber }) })
-      await refresh()
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setBusy(null)
-    }
+    await api('/admin/merge', { method: 'POST', body: JSON.stringify({ prNumber }) })
+    setReviewing(null)
+    await refresh()
   }
 
   const handleReject = async (prNumber: number) => {
-    setBusy(prNumber)
-    setError(null)
-    try {
-      await api('/admin/reject', { method: 'POST', body: JSON.stringify({ prNumber }) })
-      await refresh()
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setBusy(null)
-    }
+    await api('/admin/reject', { method: 'POST', body: JSON.stringify({ prNumber }) })
+    setReviewing(null)
+    await refresh()
   }
 
   return (
@@ -111,7 +93,7 @@ function AdminApp() {
               'focus:outline-2 focus:outline-primary focus:outline-offset-2',
             )}
           />
-          <Button onClick={handleGenerate} disabled={busy === 'generate'} isLoading={busy === 'generate'}>
+          <Button onClick={handleGenerate} disabled={generating} isLoading={generating}>
             Generate Now
           </Button>
         </div>
@@ -137,81 +119,21 @@ function AdminApp() {
         {drafts === null && !error && <p className="text-text-secondary">Loading…</p>}
         {drafts?.length === 0 && <p className="text-text-secondary">No drafts waiting.</p>}
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           {drafts?.map((draft) => (
-            <div key={draft.number} className="border border-border rounded-lg p-4 bg-surface">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="font-semibold text-text">{draft.title}</h3>
-                  <p className="text-xs text-text-secondary mt-1">
-                    #{draft.number} · {draft.branch} · {new Date(draft.createdAt).toLocaleString()}
-                  </p>
-                </div>
-                <Badge variant="outline" size="sm">PR</Badge>
-              </div>
-
-              {draft.previewUrl ? (
-                <div className="mt-4 rounded-lg overflow-hidden border border-border bg-background">
-                  <iframe
-                    src={draft.previewUrl}
-                    title={`Preview of ${draft.title}`}
-                    loading="lazy"
-                    className="w-full h-[520px] block"
-                  />
-                </div>
-              ) : (
-                <p className="text-sm text-text-secondary mt-4">
-                  Preview not ready yet — try refreshing shortly.
-                </p>
-              )}
-
-              <div className="flex flex-wrap items-center gap-4 mt-4">
-                {draft.previewUrl && (
-                  <a
-                    href={draft.previewUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
-                  >
-                    Open preview full-size
-                    <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
-                  </a>
-                )}
-                <a
-                  href={draft.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-text-secondary hover:text-text transition-colors"
-                >
-                  View PR on GitHub
-                </a>
-              </div>
-
-              <div className="flex gap-3 mt-4">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  leftIcon={<Check className="w-4 h-4" />}
-                  onClick={() => handleApprove(draft.number)}
-                  disabled={busy === draft.number}
-                  isLoading={busy === draft.number}
-                >
-                  Approve &amp; Publish
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  leftIcon={<X className="w-4 h-4" />}
-                  onClick={() => handleReject(draft.number)}
-                  disabled={busy === draft.number}
-                >
-                  Reject
-                </Button>
-              </div>
-            </div>
+            <DraftCard key={draft.number} draft={draft} onReview={setReviewing} />
           ))}
         </div>
       </div>
+
+      {reviewing && (
+        <DraftReviewModal
+          draft={reviewing}
+          onClose={() => setReviewing(null)}
+          onApprove={handleApprove}
+          onReject={handleReject}
+        />
+      )}
     </div>
   )
 }
