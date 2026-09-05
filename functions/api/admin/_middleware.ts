@@ -29,21 +29,23 @@ function getJWKS(teamDomain: string) {
 export const onRequest: PagesFunction<Env> = async ({ request, env, next }) => {
   const token = request.headers.get('Cf-Access-Jwt-Assertion')
   if (!token) {
-    console.error('[admin-auth] no Cf-Access-Jwt-Assertion header on request')
-    return new Response('Unauthorized', { status: 401 })
+    return new Response('Unauthorized: no Cf-Access-Jwt-Assertion header', { status: 401 })
   }
 
   try {
     const { payload } = await jwtVerify(token, getJWKS(env.CF_ACCESS_TEAM_DOMAIN))
     const email = typeof payload.email === 'string' ? payload.email : undefined
-    console.log('[admin-auth] verified JWT, email claim:', email, 'expected:', env.ADMIN_EMAIL)
 
     if (!email || email.toLowerCase() !== env.ADMIN_EMAIL.toLowerCase()) {
-      return new Response('Forbidden', { status: 403 })
+      return new Response(`Forbidden: JWT email "${email}" does not match ADMIN_EMAIL`, { status: 403 })
     }
   } catch (err) {
-    console.error('[admin-auth] jwtVerify failed:', (err as Error).name, (err as Error).message)
-    return new Response('Unauthorized', { status: 401 })
+    // TEMPORARY diagnostic detail — narrowing down a live auth failure.
+    // Revert to a bare 401 once this is resolved; don't ship this long-term.
+    return new Response(
+      `Unauthorized: jwtVerify failed — ${(err as Error).name}: ${(err as Error).message}`,
+      { status: 401 },
+    )
   }
 
   return next()
