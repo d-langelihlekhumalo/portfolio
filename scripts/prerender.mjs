@@ -22,7 +22,7 @@
 
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { preview } from 'vite'
 import { chromium } from '@playwright/test'
 
@@ -37,6 +37,15 @@ function outputPathFor(route) {
   return path.join(root, 'dist', cleaned, 'index.html')
 }
 
+async function projectSlugs() {
+  try {
+    const files = await readdir(path.join(root, 'content', 'projects'))
+    return files.filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, ''))
+  } catch {
+    return []
+  }
+}
+
 async function getRoutes() {
   const indexPath = path.join(root, 'src', 'generated', 'blog-index.json')
   let posts = []
@@ -48,8 +57,15 @@ async function getRoutes() {
     )
   }
 
+  const projects = await projectSlugs()
+
   return {
-    routes: ['/', '/blog', ...posts.map((p) => `/blog/${p.slug}`)],
+    routes: [
+      '/',
+      '/blog',
+      ...posts.map((p) => `/blog/${p.slug}`),
+      ...projects.map((slug) => `/projects/${slug}`),
+    ],
     posts,
   }
 }

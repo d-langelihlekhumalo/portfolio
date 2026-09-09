@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useRef, useState } from 'react'
-import { ExternalLink, GitBranch } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { ArrowRight, ExternalLink, GitBranch } from 'lucide-react'
 import { Button, Card, SectionWrapper, Badge } from '@/components'
 import { cn } from '@/utils/cn'
 import { PROJECTS } from '@/constants/portfolio'
@@ -42,6 +43,7 @@ export const Projects = forwardRef<HTMLElement, ProjectsProps>(
   ) => {
     const sectionRef = useRef<HTMLElement>(null)
     const [isVisible, setIsVisible] = useState(false)
+    const navigate = useNavigate()
 
     // Handle animation on scroll using Intersection Observer
     useEffect(() => {
@@ -159,31 +161,37 @@ export const Projects = forwardRef<HTMLElement, ProjectsProps>(
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-4 border-t border-border">
+              <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
+                {project.hasCaseStudy && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    rightIcon={<ArrowRight className="w-4 h-4" />}
+                    onClick={() => navigate(`/projects/${project.slug}`)}
+                    aria-label={`Read the ${project.name} case study`}
+                  >
+                    Read more
+                  </Button>
+                )}
+                {project.liveUrl && (
+                  <Button
+                    variant={project.hasCaseStudy ? 'secondary' : 'primary'}
+                    size="sm"
+                    rightIcon={<ExternalLink className="w-4 h-4" />}
+                    onClick={() => window.open(project.liveUrl as string, '_blank', 'noopener,noreferrer')}
+                    aria-label={`Open the live ${project.name} app`}
+                  >
+                    View live
+                  </Button>
+                )}
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="flex-1"
                   leftIcon={<GitBranch className="w-4 h-4" />}
-                  onClick={() => window.open(project.github, '_blank')}
+                  onClick={() => window.open(project.github, '_blank', 'noopener,noreferrer')}
                   aria-label={`View ${project.name} on GitHub`}
                 >
                   GitHub
-                </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  className="flex-1"
-                  rightIcon={<ExternalLink className="w-4 h-4" />}
-                  onClick={() => {
-                    if (project.demo !== '#') {
-                      window.open(project.demo, '_blank')
-                    }
-                  }}
-                  disabled={project.demo === '#'}
-                  aria-label={`View ${project.name} demo${project.demo === '#' ? ' (coming soon)' : ''}`}
-                >
-                  {project.demo === '#' ? 'Demo (Soon)' : 'View Demo'}
                 </Button>
               </div>
             </Card>

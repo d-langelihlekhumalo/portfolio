@@ -8,6 +8,7 @@ import HomePage from '@/pages/HomePage'
 // code-split so homepage visitors never download it.
 const BlogListPage = lazy(() => import('@/pages/BlogListPage'))
 const BlogPostPage = lazy(() => import('@/pages/BlogPostPage'))
+const ProjectCaseStudyPage = lazy(() => import('@/pages/ProjectCaseStudyPage'))
 // Gated (Cloudflare Access), never shown to public visitors — its own bundle,
 // its own minimal shell, deliberately outside PublicLayout.
 const AdminApp = lazy(() => import('@/pages/admin/AdminApp'))
@@ -39,6 +40,14 @@ function AppRouter({ isDark, onToggleDarkMode }: AppRouterProps) {
           element={
             <Suspense fallback={<RouteFallback />}>
               <BlogPostPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/projects/:slug"
+          element={
+            <Suspense fallback={<RouteFallback />}>
+              <ProjectCaseStudyPage />
             </Suspense>
           }
         />
