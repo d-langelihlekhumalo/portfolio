@@ -140,7 +140,7 @@ export const PROJECTS: Project[] = [
       'Initial route ~120 kB gzipped against a 250 kB budget',
     ],
     github: 'https://github.com/d-langelihlekhumalo/baby-steps-tracker',
-    liveUrl: null, // TODO: set to the workers.dev URL after the first deploy
+    liveUrl: 'https://baby-steps-tracker.d-langelihlekhumalo.workers.dev',
     hasCaseStudy: true,
     status: 'Live',
   },

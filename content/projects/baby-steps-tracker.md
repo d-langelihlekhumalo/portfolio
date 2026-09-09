@@ -13,6 +13,8 @@ tech:
   - "Cloudflare Workers"
   - "Vitest"
 repoUrl: "https://github.com/d-langelihlekhumalo/baby-steps-tracker"
+liveUrl: "https://baby-steps-tracker.d-langelihlekhumalo.workers.dev"
+status: "Live"
 year: "2026"
 ---
 
