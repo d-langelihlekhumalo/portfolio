@@ -47,13 +47,11 @@ export const POSITIONING = {
 }
 
 export const SKILLS = {
-  languages: ['C#', 'TypeScript', 'JavaScript', 'Python', 'SQL'],
-  frontend: ['React', 'HTML5', 'CSS3 / SCSS', 'Tailwind CSS'],
-  backend: ['ASP.NET Core', '.NET', 'Entity Framework Core', 'REST APIs'],
-  database: ['SQL Server', 'PostgreSQL'],
-  cloud: ['Microsoft Azure', 'Docker', 'CI/CD'],
+  frontend: ['React', 'TypeScript', 'JavaScript', 'HTML5', 'CSS3 / SCSS', 'Tailwind CSS'],
+  backend: ['C#', 'ASP.NET Core', '.NET', 'Entity Framework Core', 'REST APIs', 'Python'],
+  data: ['SQL', 'SQL Server', 'PostgreSQL'],
+  tooling: ['Git', 'GitHub', 'Docker', 'CI/CD', 'Azure DevOps', 'Microsoft Azure', 'Postman', 'Visual Studio', 'JIRA'],
   ai: ['Claude API', 'AI Agents', 'LLM Integration', 'Anthropic SDK', 'Prompt Engineering'],
-  tools: ['Git', 'GitHub', 'Azure DevOps', 'Postman', 'Visual Studio', 'JIRA'],
 }
 
 export const EXPERIENCE = [

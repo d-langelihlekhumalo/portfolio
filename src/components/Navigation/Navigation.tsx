@@ -7,6 +7,7 @@ import { NavLinks } from './NavLinks';
 import { HamburgerButton } from './HamburgerButton';
 import { MobileMenu } from './MobileMenu';
 import { DarkModeToggle } from './DarkModeToggle';
+import { useNavLinkClick } from './useNavLinkClick';
 
 export const Navigation: React.FC<NavigationProps> = ({
   isDark,
@@ -14,6 +15,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const handleAnchorClick = useNavLinkClick();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,8 +56,16 @@ export const Navigation: React.FC<NavigationProps> = ({
           {/* Desktop Nav Links (hidden on mobile/tablet) */}
           <NavLinks links={NAVIGATION_LINKS} />
 
-          {/* Right side: Dark mode toggle + Hamburger */}
+          {/* Right side: Start a project + Dark mode toggle + Hamburger */}
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+            <a
+              href="#contact"
+              onClick={(e) => handleAnchorClick({ id: 'contact', label: 'Start a project' }, e)}
+              className="hidden sm:inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-on-primary hover:opacity-90 transition-opacity focus:outline-2 focus:outline-primary focus:outline-offset-2"
+            >
+              Start a project
+            </a>
+
             {/* Dark Mode Toggle */}
             <DarkModeToggle
               isDark={isDark}

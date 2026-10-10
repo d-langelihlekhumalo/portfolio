@@ -1,11 +1,11 @@
 import { Hero } from '@/components'
 import { usePageMeta } from '@/hooks/usePageMeta'
-import { About } from '@/sections/About'
+import { AboutExperience } from '@/sections/AboutExperience'
 import { Services } from '@/sections/Services'
+import { HowIWork } from '@/sections/HowIWork'
 import { TechStack } from '@/sections/TechStack'
-import { Experience } from '@/sections/Experience'
-import { Education } from '@/sections/Education'
 import { Projects } from '@/sections/Projects'
+import { Writing } from '@/sections/Writing'
 // import { Testimonials } from '@/sections/Testimonials' // hidden until real testimonials exist
 import { Contact } from '@/sections/Contact'
 import { AVAILABILITY, PORTFOLIO, POSITIONING } from '@/constants/portfolio'
@@ -25,52 +25,30 @@ function HomePage() {
 
   return (
     <>
-      {/* Hero Section */}
       <Hero
-        name={PORTFOLIO.name}
-        title={PORTFOLIO.title}
-        statusBadge={AVAILABILITY.statusLine}
+        headline={POSITIONING.headline}
         description={POSITIONING.subhead}
-        showVisual={true}
-        animate={true}
-        ctaPrimary={{ label: 'View My Work', onClick: scrollToId('projects') }}
-        ctaSecondary={{ label: 'Get in Touch', onClick: scrollToId('contact') }}
+        statusBadge={AVAILABILITY.statusLine}
+        ctaPrimary={{ label: 'See the work', onClick: scrollToId('work') }}
+        ctaSecondary={{ label: 'Email me', onClick: scrollToId('contact') }}
       />
 
-      {/* About Section */}
-      <About
-        id="about"
-        animate={true}
-        ctaLabel="Get in Touch"
-        ctaOnClick={scrollToId('contact')}
-      />
+      <Projects id="work" />
 
-      {/* Services Section */}
-      <Services id="services" animate={true} />
+      <Services id="services" />
 
-      {/* Tech Stack Section */}
-      <TechStack id="tech-stack" animate={true} />
+      <HowIWork id="how-i-work" />
 
-      {/* Experience Section */}
-      <Experience id="experience" animate={true} />
+      <AboutExperience id="about" />
 
-      {/* Education Section */}
-      <Education id="education" animate={true} />
+      <TechStack id="tech-stack" />
 
-      {/* Projects Section */}
-      <Projects id="projects" animate={true} />
+      <Writing id="writing" />
 
       {/* Testimonials — hidden until there are real client testimonials to show.
-          Re-add <Testimonials id="testimonials" animate={true} /> and its import when ready. */}
+          Re-add <Testimonials id="testimonials" /> and its import when ready. */}
 
-      {/* Contact Section */}
-      <Contact
-        id="contact"
-        animate={true}
-        email={PORTFOLIO.email}
-        github={PORTFOLIO.social.github}
-        linkedin={PORTFOLIO.social.linkedin}
-      />
+      <Contact id="contact" email={PORTFOLIO.email} github={PORTFOLIO.social.github} linkedin={PORTFOLIO.social.linkedin} />
     </>
   )
 }

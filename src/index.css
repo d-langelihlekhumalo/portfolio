@@ -75,6 +75,29 @@
 }
 
 /*
+ * The hero's one orchestrated animation: the build-receipt bundle-budget
+ * bar fills once on load. See BuildReceipt.tsx for the --budget-pct value.
+ */
+@keyframes budget-fill {
+  from {
+    width: 0;
+  }
+  to {
+    width: var(--budget-pct);
+  }
+}
+.budget-bar {
+  width: var(--budget-pct);
+  animation: budget-fill 600ms 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .budget-bar {
+    animation: none;
+    width: var(--budget-pct);
+  }
+}
+
+/*
  * Progressive enhancement for scroll-reveal animations.
  *
  * Sections start at opacity-0 and fade in once an IntersectionObserver confirms

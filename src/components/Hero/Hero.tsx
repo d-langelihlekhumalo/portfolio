@@ -1,46 +1,22 @@
 import { forwardRef } from 'react'
 import { HeroProps } from './Hero.types'
 import { Badge, Button, SectionWrapper } from '@/components'
-import { HeroVisual } from './HeroVisual'
+import { BuildReceipt } from './BuildReceipt'
 import { cn } from '@/utils/cn'
 
-/**
- * Hero component - Premium hero section for portfolio
- * Responsive layout with animations and CTAs
- *
- * @example
- * <Hero
- *   name="Andile Khumalo"
- *   title="Software Developer"
- *   description="I build reliable, scalable software solutions..."
- *   statusBadge="Available for freelance work"
- *   ctaPrimary={{ label: 'View My Work', onClick: handleViewProjects }}
- *   ctaSecondary={{ label: 'Get in Touch', onClick: handleContact }}
- * />
- */
-
-// Pure-CSS entrance animation — plays on paint, no JS/IntersectionObserver required.
-// This keeps hero content visible (and its final layout correct) for crawlers and
-// no-JS clients, which matter for both SEO and the static-prerendered build.
+// The hero's one orchestrated moment: the text fades in, then the build
+// receipt's budget bar fills (see index.css). No per-element stagger.
 const animationStyle = `
-  @keyframes heroFadeSlide {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  @keyframes heroFadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  .hero-animate-element {
-    animation: heroFadeSlide 600ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  .hero-fade-in {
+    animation: heroFadeIn 500ms cubic-bezier(0.4, 0, 0.2, 1) both;
   }
   @media (prefers-reduced-motion: reduce) {
-    .hero-animate-element {
+    .hero-fade-in {
       animation: none;
-      opacity: 1;
-      transform: none;
     }
   }
 `
@@ -48,14 +24,11 @@ const animationStyle = `
 export const Hero = forwardRef<HTMLElement, HeroProps>(
   (
     {
-      name,
-      title,
+      headline,
       description,
       statusBadge,
-      showVisual = true,
       ctaPrimary,
       ctaSecondary,
-      variant = 'default',
       animate = true,
       id = 'hero',
       ariaLabel = 'Hero section',
@@ -70,7 +43,7 @@ export const Hero = forwardRef<HTMLElement, HeroProps>(
         <SectionWrapper
           ref={ref}
           id={id}
-          background={variant === 'gradient' ? 'gradient' : 'default'}
+          background="default"
           spacing="xl"
           variant="contained"
           animate={false}
@@ -79,111 +52,39 @@ export const Hero = forwardRef<HTMLElement, HeroProps>(
           className={className}
           {...props}
         >
-          {/* Main content grid - two column on desktop */}
-          <div className={cn(
-            'grid gap-12 lg:grid-cols-2 lg:items-center',
-          )}>
-            {/* Left column: Text content */}
-            <div className="flex flex-col items-center text-center lg:items-start lg:text-left gap-6 lg:gap-8">
-
-              {/* Status Badge (optional) */}
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+            <div className={cn('flex flex-col items-start gap-6', animate && 'hero-fade-in')}>
               {statusBadge && (
-                <div
-                  className={cn(animate && 'hero-animate-element')}
-                  style={animate ? { animationDelay: '0ms' } : undefined}
-                >
-                  <Badge
-                    variant="primary"
-                    size="md"
-                  >
-                    {statusBadge}
-                  </Badge>
-                </div>
+                <Badge variant="primary" size="md">
+                  {statusBadge}
+                </Badge>
               )}
 
-              {/* Headline (H1) */}
-              <div
-                className={cn(animate && 'hero-animate-element')}
-                style={animate ? { animationDelay: '100ms' } : undefined}
-              >
-                <h1 className={cn(
-                  'text-3xl md:text-4xl lg:text-5xl',
-                  'font-bold leading-tight',
-                  'text-text tracking-tighter',
-                )}>
-                  {name}
-                  <br />
-                  {title}
-                </h1>
-              </div>
+              <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-text md:text-6xl">
+                {headline}
+              </h1>
 
-              {/* Subheading - Value Proposition */}
-              <div
-                className={cn(animate && 'hero-animate-element')}
-                style={animate ? { animationDelay: '200ms' } : undefined}
-              >
-                <p className={cn(
-                  'text-lg md:text-xl lg:text-xl',
-                  'font-normal leading-relaxed',
-                  'text-text-secondary',
-                  'max-w-2xl',
-                )}>
-                  {description}
-                </p>
-              </div>
+              <p className="max-w-[55ch] text-lg leading-relaxed text-text-secondary md:text-xl">
+                {description}
+              </p>
 
-              {/* CTA Buttons */}
-              <div
-                className={cn(
-                  'flex gap-3',
-                  'flex-col md:flex-row',
-                  'w-full md:w-auto',
-                  'max-w-xs md:max-w-none',
-                  'justify-center md:justify-start',
-                  'pt-4 md:pt-0',
-                  animate && 'hero-animate-element',
-                )}
-                style={animate ? { animationDelay: '300ms' } : undefined}
-                role="group"
-                aria-label="Call-to-action buttons"
-              >
-
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row" role="group" aria-label="Call-to-action buttons">
                 {ctaPrimary && (
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    onClick={ctaPrimary.onClick}
-                    aria-label={ctaPrimary.label}
-                    className="flex-1 md:flex-none"
-                  >
+                  <Button variant="primary" size="lg" onClick={ctaPrimary.onClick} aria-label={ctaPrimary.label}>
                     {ctaPrimary.label}
                   </Button>
                 )}
-
                 {ctaSecondary && (
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    onClick={ctaSecondary.onClick}
-                    aria-label={ctaSecondary.label}
-                    className="flex-1 md:flex-none"
-                  >
+                  <Button variant="secondary" size="lg" onClick={ctaSecondary.onClick} aria-label={ctaSecondary.label}>
                     {ctaSecondary.label}
                   </Button>
                 )}
               </div>
             </div>
 
-            {/* Right column: Visual element (desktop only) */}
-            {showVisual && (
-              <div
-                className={cn('hidden lg:flex items-center justify-center', animate && 'hero-animate-element')}
-                style={animate ? { animationDelay: '200ms' } : undefined}
-                aria-hidden="true"
-              >
-                <HeroVisual />
-              </div>
-            )}
+            <div className={cn(animate && 'hero-fade-in')} style={animate ? { animationDelay: '100ms' } : undefined}>
+              <BuildReceipt />
+            </div>
           </div>
         </SectionWrapper>
       </>

@@ -1,7 +1,6 @@
-import { forwardRef, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowRight, ExternalLink, GitBranch } from 'lucide-react'
-import { Button, Card, SectionWrapper, Badge } from '@/components'
+import { forwardRef } from 'react'
+import { Link } from 'react-router-dom'
+import { SectionWrapper } from '@/components'
 import { cn } from '@/utils/cn'
 import { PROJECTS } from '@/constants/portfolio'
 
@@ -11,194 +10,109 @@ interface ProjectsProps extends React.HTMLAttributes<HTMLElement> {
   ariaLabel?: string
 }
 
+const linkClassName = cn(
+  'text-sm font-semibold text-primary underline-offset-4 hover:underline',
+  'focus:outline-2 focus:outline-primary focus:outline-offset-2 rounded-sm',
+)
+
 /**
- * Projects Section Component
- *
- * Professional placeholder section for featuring completed projects.
- * Ready to be populated with actual project cards, case studies, and links.
- *
- * Includes:
- * - Professional placeholder messaging
- * - Call-to-action for contact
- * - Responsive design
- * - Fade-in animation on scroll
- * - Full accessibility support
- *
- * @example
- * <Projects
- *   id="projects"
- *   animate={true}
- * />
+ * Selected work — each project as a row (screenshot + details), alternating
+ * sides on desktop. No cards, no pill badges: rules between rows do the
+ * separating.
  */
 export const Projects = forwardRef<HTMLElement, ProjectsProps>(
-  (
-    {
-      id = 'projects',
-      animate = true,
-      ariaLabel = 'Featured projects and case studies',
-      className,
-      ...props
-    },
-    ref,
-  ) => {
-    const sectionRef = useRef<HTMLElement>(null)
-    const [isVisible, setIsVisible] = useState(false)
-    const navigate = useNavigate()
-
-    // Handle animation on scroll using Intersection Observer
-    useEffect(() => {
-      if (!animate) return
-
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true)
-            observer.unobserve(entry.target)
-          }
-        },
-        { threshold: 0.1 },
-      )
-
-      const currentRef = sectionRef.current || (ref as any)?.current
-      if (currentRef) {
-        observer.observe(currentRef)
-      }
-
-      return () => {
-        if (currentRef) {
-          observer.unobserve(currentRef)
-        }
-      }
-    }, [animate, ref])
-
+  ({ id = 'work', animate: _animate, ariaLabel = 'Selected work', className, ...props }, ref) => {
     return (
       <SectionWrapper
-        ref={ref || sectionRef}
+        ref={ref}
         id={id}
-        heading="Featured Projects"
-        subheading="Showcase of completed work and technical solutions"
+        heading="Selected work"
         background="default"
-        spacing="lg"
-        animate={animate}
+        spacing="xl"
+        variant="contained"
+        animate={false}
         role="region"
         ariaLabel={ariaLabel}
         className={className}
         {...props}
       >
-        {/* Projects Grid */}
-        <div
-          className={cn(
-            'grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8',
-            'transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]',
-            animate && !isVisible ? 'opacity-0 translate-y-8' : 'opacity-100 translate-y-0',
-          )}
-        >
-          {PROJECTS.map((project) => (
-            <Card
-              key={project.id}
-              padding="lg"
-              className="flex flex-col gap-6 h-full group hover:border-primary/50 transition-colors"
-            >
-              {/* Project Header */}
-              <div className="space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-xl md:text-2xl font-bold text-text flex-1 group-hover:text-primary transition-colors">
-                    {project.name}
-                  </h3>
-                  <Badge variant="outline" className="flex-shrink-0">
-                    {project.status}
-                  </Badge>
-                </div>
-                <p className="text-sm md:text-base text-text-secondary leading-relaxed">
-                  {project.description}
-                </p>
-              </div>
+        <div className="divide-y divide-border">
+          {PROJECTS.map((project, i) => {
+            const imageOrderClass = i % 2 === 1 ? 'lg:order-2' : 'lg:order-1'
+            const textOrderClass = i % 2 === 1 ? 'lg:order-1' : 'lg:order-2'
 
-              {/* Problem & Solution */}
-              <div className="space-y-4 flex-1">
-                <div>
-                  <h4 className="text-sm font-semibold text-text mb-1.5">Problem</h4>
-                  <p className="text-sm text-text-secondary leading-relaxed">
-                    {project.problem}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-text mb-1.5">Solution</h4>
-                  <p className="text-sm text-text-secondary leading-relaxed">
-                    {project.solution}
-                  </p>
-                </div>
-              </div>
-
-              {/* Technologies */}
-              <div>
-                <h4 className="text-sm font-semibold text-text mb-2">Technologies</h4>
-                <div className="flex flex-wrap gap-2">
-                  {project.technologies.slice(0, 6).map((tech) => (
-                    <Badge key={tech} variant="default" className="text-xs">
-                      {tech}
-                    </Badge>
-                  ))}
-                  {project.technologies.length > 6 && (
-                    <Badge variant="default" className="text-xs">
-                      +{project.technologies.length - 6} more
-                    </Badge>
+            return (
+              <article key={project.id} className="py-10 first:pt-0 last:pb-0 md:py-14">
+                <div
+                  className={cn(
+                    'grid gap-6',
+                    project.screenshot && 'lg:grid-cols-2 lg:items-center lg:gap-10',
                   )}
+                >
+                  {project.screenshot && (
+                    <div className={cn('order-1', imageOrderClass)}>
+                      <img
+                        src={project.screenshot.src}
+                        alt={project.screenshot.alt}
+                        width={project.screenshot.width}
+                        height={project.screenshot.height}
+                        loading={i === 0 ? 'eager' : 'lazy'}
+                        className="w-full rounded-lg border border-border"
+                      />
+                    </div>
+                  )}
+
+                  <div className={cn('order-2', project.screenshot ? textOrderClass : '', 'flex flex-col gap-3')}>
+                    <h3 className="text-xl font-bold text-text md:text-2xl">
+                      {project.name}{' '}
+                      <span className="font-normal text-text-secondary">· {project.status}</span>
+                    </h3>
+
+                    <p className="text-text-secondary">{project.description}</p>
+
+                    {project.features.length > 0 && (
+                      <ul className="space-y-1 text-sm text-text-secondary">
+                        {project.features.slice(0, 2).map((feature) => (
+                          <li key={feature}>· {feature}</li>
+                        ))}
+                      </ul>
+                    )}
+
+                    <p className="text-sm text-text-secondary">{project.technologies.join(' · ')}</p>
+
+                    <div className="flex flex-wrap gap-5 pt-2">
+                      {project.hasCaseStudy && (
+                        <Link to={`/projects/${project.slug}`} className={linkClassName}>
+                          Case study
+                        </Link>
+                      )}
+                      {project.liveUrl && (
+                        <a
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={linkClassName}
+                        >
+                          Live
+                        </a>
+                      )}
+                      {project.repos.map((repo) => (
+                        <a
+                          key={repo.url}
+                          href={repo.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={linkClassName}
+                        >
+                          {project.repos.length > 1 ? repo.label : 'Code'}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-
-              {/* Key Achievements */}
-              <div>
-                <h4 className="text-sm font-semibold text-text mb-2">Key Achievements</h4>
-                <ul className="space-y-1.5">
-                  {project.keyAchievements.slice(0, 2).map((achievement, idx) => (
-                    <li key={idx} className="flex gap-2 text-sm text-text-secondary">
-                      <span className="text-primary flex-shrink-0">✓</span>
-                      <span>{achievement}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
-                {project.hasCaseStudy && (
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    rightIcon={<ArrowRight className="w-4 h-4" />}
-                    onClick={() => navigate(`/projects/${project.slug}`)}
-                    aria-label={`Read the ${project.name} case study`}
-                  >
-                    Read more
-                  </Button>
-                )}
-                {project.liveUrl && (
-                  <Button
-                    variant={project.hasCaseStudy ? 'secondary' : 'primary'}
-                    size="sm"
-                    rightIcon={<ExternalLink className="w-4 h-4" />}
-                    onClick={() => window.open(project.liveUrl as string, '_blank', 'noopener,noreferrer')}
-                    aria-label={`Open the live ${project.name} app`}
-                  >
-                    View live
-                  </Button>
-                )}
-                {project.repos.map((repo) => (
-                  <Button
-                    key={repo.url}
-                    variant="secondary"
-                    size="sm"
-                    leftIcon={<GitBranch className="w-4 h-4" />}
-                    onClick={() => window.open(repo.url, '_blank', 'noopener,noreferrer')}
-                    aria-label={`View ${project.name} ${repo.label} on GitHub`}
-                  >
-                    {project.repos.length > 1 ? repo.label : 'GitHub'}
-                  </Button>
-                ))}
-              </div>
-            </Card>
-          ))}
+              </article>
+            )
+          })}
         </div>
       </SectionWrapper>
     )
