@@ -48,10 +48,10 @@ export const Testimonials = forwardRef<HTMLElement, TestimonialsProps>(
           </p>
 
           <div className="pt-6 border-t border-border mt-4 pt-8 w-full space-y-2">
-            <p className="text-sm text-text-secondary/80">
+            <p className="text-sm text-text-secondary">
               Authentic testimonials from verified clients will appear here.
             </p>
-            <p className="text-xs text-text-secondary/60">
+            <p className="text-xs text-text-secondary">
               No fabricated feedback — only genuine professional recommendations.
             </p>
           </div>

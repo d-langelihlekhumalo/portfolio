@@ -182,7 +182,7 @@ export const Footer = forwardRef<HTMLElement, FooterProps>(
             </div>
 
             {/* Build info */}
-            <p className="text-xs text-text-secondary/60">
+            <p className="text-xs text-text-secondary">
               Built with React, TypeScript &amp; Tailwind CSS.
             </p>
           </div>
