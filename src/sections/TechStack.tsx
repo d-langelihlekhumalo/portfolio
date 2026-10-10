@@ -26,7 +26,6 @@ export const TechStack = forwardRef<HTMLElement, TechStackProps>(
         background="default"
         spacing="xl"
         variant="contained"
-        animate={false}
         role="region"
         ariaLabel={ariaLabel}
         className={className}

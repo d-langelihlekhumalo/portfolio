@@ -27,7 +27,6 @@ export const HowIWork = forwardRef<HTMLElement, HowIWorkProps>(
         background="default"
         spacing="xl"
         variant="contained"
-        animate={false}
         role="region"
         ariaLabel={ariaLabel}
         className={className}

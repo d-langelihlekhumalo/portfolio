@@ -5,7 +5,9 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
-    "lib": ["ES2021"]
+    "lib": ["ES2021"],
+    "outDir": "./node_modules/.tsc-node-out",
+    "noEmit": false
   },
   "include": ["vite.config.ts", "src/constants/portfolio.ts"]
 }

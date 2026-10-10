@@ -46,7 +46,6 @@ export const Hero = forwardRef<HTMLElement, HeroProps>(
           background="default"
           spacing="xl"
           variant="contained"
-          animate={false}
           role="region"
           ariaLabel={ariaLabel}
           className={className}

@@ -35,7 +35,6 @@ export const Writing = forwardRef<HTMLElement, WritingProps>(
         background="default"
         spacing="xl"
         variant="contained"
-        animate={false}
         role="region"
         ariaLabel={ariaLabel}
         className={className}

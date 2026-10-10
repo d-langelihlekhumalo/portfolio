@@ -51,7 +51,6 @@ export const Contact = forwardRef<HTMLElement, ContactProps>(
         background="default"
         spacing="xl"
         variant="contained"
-        animate={false}
         role="region"
         ariaLabel={ariaLabel}
         className={className}

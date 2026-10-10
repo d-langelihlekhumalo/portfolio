@@ -35,13 +35,13 @@ export const Navigation: React.FC<NavigationProps> = ({
         'animate-fade-in'
       )}
     >
-      {/* Navigation bar background */}
+      {/* Navigation bar background — always fully solid, not translucent, so
+          content never shows through while scrolling (bug #3). A bottom
+          border appears only once scrolled. */}
       <div
         className={cn(
-          'transition-all duration-300',
-          hasScrolled
-            ? 'bg-background/80 backdrop-blur-md shadow-lg border-b border-border/50'
-            : 'bg-background border-b border-border/0'
+          'bg-background transition-[border-color] duration-300',
+          hasScrolled ? 'border-b border-border' : 'border-b border-transparent'
         )}
       >
         {/* Navigation content — same container as SectionWrapper (1120px, 24px/16px padding) */}

@@ -23,7 +23,6 @@ export const AboutExperience = forwardRef<HTMLElement, AboutExperienceProps>(
         background="default"
         spacing="xl"
         variant="contained"
-        animate={false}
         role="region"
         ariaLabel={ariaLabel}
         className={className}

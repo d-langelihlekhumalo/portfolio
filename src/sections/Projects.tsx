@@ -30,7 +30,6 @@ export const Projects = forwardRef<HTMLElement, ProjectsProps>(
         background="default"
         spacing="xl"
         variant="contained"
-        animate={false}
         role="region"
         ariaLabel={ariaLabel}
         className={className}

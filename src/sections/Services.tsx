@@ -59,7 +59,6 @@ export const Services = forwardRef<HTMLElement, ServicesProps>(
         background="default"
         spacing="xl"
         variant="contained"
-        animate={false}
         role="region"
         ariaLabel={ariaLabel}
         className={className}

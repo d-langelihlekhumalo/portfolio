@@ -1,10 +1,11 @@
-import { forwardRef, useEffect, useRef, useState } from 'react'
+import { forwardRef } from 'react'
 import { SectionWrapperProps } from './SectionWrapper.types'
 import { cn } from '@/utils/cn'
 
 /**
  * SectionWrapper component - provides consistent spacing, responsive layout,
- * and optional background styling for major page sections
+ * and optional background styling for major page sections. No scroll-reveal
+ * motion — content is simply there (see the brief's Motion section).
  */
 export const SectionWrapper = forwardRef<HTMLElement, SectionWrapperProps>(
   (
@@ -16,7 +17,6 @@ export const SectionWrapper = forwardRef<HTMLElement, SectionWrapperProps>(
       heading,
       subheading,
       variant = 'contained',
-      animate = false,
       role,
       ariaLabel,
       className,
@@ -24,35 +24,6 @@ export const SectionWrapper = forwardRef<HTMLElement, SectionWrapperProps>(
     },
     ref,
   ) => {
-    const sectionRef = useRef<HTMLElement>(null)
-    const [isVisible, setIsVisible] = useState(false)
-
-    // Handle animation on scroll using Intersection Observer
-    useEffect(() => {
-      if (!animate) return
-
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true)
-            observer.unobserve(entry.target)
-          }
-        },
-        { threshold: 0.1 },
-      )
-
-      const currentRef = sectionRef.current || (ref as any)?.current
-      if (currentRef) {
-        observer.observe(currentRef)
-      }
-
-      return () => {
-        if (currentRef) {
-          observer.unobserve(currentRef)
-        }
-      }
-    }, [animate, ref])
-
     // Background styling
     const backgroundClasses = {
       default: 'bg-background',
@@ -76,24 +47,16 @@ export const SectionWrapper = forwardRef<HTMLElement, SectionWrapperProps>(
       full: 'w-full',
     }
 
-    // Animation classes
-    const animationClasses = animate
-      ? cn(
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5',
-          'transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)]',
-        )
-      : ''
-
-    const sectionElement = ref || sectionRef
-
     return (
       <section
-        ref={sectionElement}
+        ref={ref}
         id={id}
         className={cn(
           backgroundClasses[background],
           spacingClasses[spacing],
-          animationClasses,
+          // Bug fix: heading hid under the sticky nav when jumping via a nav
+          // link — scroll-margin-top matches the nav's tallest (desktop) height.
+          'scroll-mt-16',
           className,
         )}
         role={role}
