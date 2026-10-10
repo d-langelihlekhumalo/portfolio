@@ -1,18 +1,54 @@
 export const PORTFOLIO = {
   name: 'Andile Khumalo',
-  title: 'Software Developer',
+  title: 'Full Stack Software Developer',
   tagline: 'Full Stack Developer specializing in .NET and React',
   email: 'd.langelihlekhumalo@gmail.com',
   location: 'Cape Town, South Africa',
   social: {
     github: 'https://github.com/d-langelihlekhumalo',
     linkedin: 'https://linkedin.com/in/andile-khumalo-1087441b7',
+    // TODO(andile): set once an Upwork profile exists.
+    upwork: undefined as string | undefined,
   },
 }
 
+// 'open'      → neutral wording, no "freelance" claims (use until consent is granted)
+// 'freelance' → explicit freelance/contract wording
+export const AVAILABILITY_MODE: 'open' | 'freelance' = 'open' // TODO(andile): flip after written consent
+
+export const AVAILABILITY_COPY = {
+  open: {
+    statusLine: 'Open to a small number of projects',
+    titleSuffix: 'React and .NET developer',
+    metaDescription:
+      'Cape Town developer building fast, well-tested web apps and PWAs with React, TypeScript and .NET.',
+    contactSubheading: 'Get in touch about a project',
+    blogDescription: 'Notes on .NET, React, and building reliable software, from Cape Town.',
+  },
+  freelance: {
+    statusLine: 'Available for freelance and contract work',
+    titleSuffix: 'freelance React and .NET developer',
+    metaDescription:
+      'Freelance developer in Cape Town building fast, well-tested web apps and PWAs with React, TypeScript and .NET. Available for contract work.',
+    contactSubheading: 'Get in touch for freelance opportunities or project inquiries',
+    blogDescription:
+      'Notes on .NET, React, and building reliable software, from a freelance full-stack developer in Cape Town.',
+  },
+} as const
+
+export const AVAILABILITY = AVAILABILITY_COPY[AVAILABILITY_MODE]
+
+// Used in the hero, the footer and the JSON-LD description — one statement,
+// not re-written per section.
+export const POSITIONING = {
+  headline: 'I build fast, well-tested web apps that keep working offline.',
+  subhead:
+    "React and TypeScript on the front, .NET or serverless APIs behind them. For startups, small teams and founders who want software that's done properly.",
+}
+
 export const SKILLS = {
-  languages: ['C#', 'TypeScript', 'JavaScript', 'Python', 'Java', 'SQL'],
-  frontend: ['React', 'Vue', 'Angular', 'HTML5', 'CSS3 / SCSS', 'Tailwind CSS'],
+  languages: ['C#', 'TypeScript', 'JavaScript', 'Python', 'SQL'],
+  frontend: ['React', 'HTML5', 'CSS3 / SCSS', 'Tailwind CSS'],
   backend: ['ASP.NET Core', '.NET', 'Entity Framework Core', 'REST APIs'],
   database: ['SQL Server', 'PostgreSQL'],
   cloud: ['Microsoft Azure', 'Docker', 'CI/CD'],
@@ -24,7 +60,7 @@ export const EXPERIENCE = [
   {
     id: 'advania',
     company: 'Advania SA',
-    position: 'Software Developer',
+    position: 'Full Stack Software Developer',
     duration: 'June 2024 – Present',
     highlights: [
       'Lead end-to-end delivery of high-complexity features across the full stack',

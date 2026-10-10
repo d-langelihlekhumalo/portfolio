@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useRef, useState } from 'react'
 import { Mail, Copy, CheckCircle, GitBranch, Users, Phone } from 'lucide-react'
 import { Button, SectionWrapper } from '@/components'
 import { cn } from '@/utils/cn'
+import { AVAILABILITY } from '@/constants/portfolio'
 
 interface ContactProps extends React.HTMLAttributes<HTMLElement> {
   id?: string
@@ -129,7 +130,7 @@ export const Contact = forwardRef<HTMLElement, ContactProps>(
         ref={ref || sectionRef}
         id={id}
         heading="Let's Work Together"
-        subheading="Get in touch for freelance opportunities or project inquiries"
+        subheading={AVAILABILITY.contactSubheading}
         background="default"
         spacing="lg"
         animate={animate}

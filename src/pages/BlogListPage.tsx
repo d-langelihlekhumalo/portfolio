@@ -5,6 +5,7 @@ import { TagFilterBar } from '@/sections/Blog/TagFilterBar'
 import { usePageMeta } from '@/hooks/usePageMeta'
 import postsIndex from '@/generated/blog-index.json'
 import type { PostSummary } from '@/blog/types'
+import { AVAILABILITY } from '@/constants/portfolio'
 
 const posts = postsIndex as PostSummary[]
 const INITIAL_BATCH = 24 // generous — the prerender snapshot only bakes in what's visible at mount
@@ -12,7 +13,7 @@ const INITIAL_BATCH = 24 // generous — the prerender snapshot only bakes in wh
 function BlogListPage() {
   usePageMeta({
     title: 'Blog — Andile Khumalo',
-    description: 'Notes on .NET, React, and building reliable software, from a freelance full-stack developer in Cape Town.',
+    description: AVAILABILITY.blogDescription,
     path: '/blog',
   })
 

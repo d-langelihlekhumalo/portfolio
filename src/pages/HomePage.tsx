@@ -8,18 +8,18 @@ import { Education } from '@/sections/Education'
 import { Projects } from '@/sections/Projects'
 // import { Testimonials } from '@/sections/Testimonials' // hidden until real testimonials exist
 import { Contact } from '@/sections/Contact'
-import { PORTFOLIO } from '@/constants/portfolio'
+import { AVAILABILITY, PORTFOLIO, POSITIONING } from '@/constants/portfolio'
 
 const scrollToId = (id: string) => () => {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 }
 
 function HomePage() {
-  // Matches index.html's static defaults — keep these in sync there too.
+  // Same source as index.html's build-time defaults (vite.config.ts) — one
+  // set of availability-mode strings, not two hand-maintained copies.
   usePageMeta({
-    title: 'Andile Khumalo — Freelance .NET & React Developer',
-    description:
-      'Freelance full-stack developer in Cape Town specializing in .NET and React. Available for contract work — reliable software, delivered end to end.',
+    title: `${PORTFOLIO.name}, ${AVAILABILITY.titleSuffix}`,
+    description: AVAILABILITY.metaDescription,
     path: '/',
   })
 
@@ -29,8 +29,8 @@ function HomePage() {
       <Hero
         name={PORTFOLIO.name}
         title={PORTFOLIO.title}
-        statusBadge="Available for freelance & contract work"
-        description="Freelance full-stack developer based in Cape Town, building reliable software with .NET and React — full stack delivery, API design, and cloud architecture."
+        statusBadge={AVAILABILITY.statusLine}
+        description={POSITIONING.subhead}
         showVisual={true}
         animate={true}
         ctaPrimary={{ label: 'View My Work', onClick: scrollToId('projects') }}
