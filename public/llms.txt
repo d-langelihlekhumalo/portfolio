@@ -1,13 +1,19 @@
 # Andile Khumalo
 
-> Freelance full-stack developer based in Cape Town, South Africa, specializing in .NET and React. Available for freelance and contract work alongside a full-time software developer role.
+> Full-stack developer based in Cape Town, South Africa, building fast, well-tested web apps and PWAs with React, TypeScript and .NET.
 
 ## Background
 
-- Full-time Software Developer at Advania SA (June 2024–present); previously Clickatell (2023–2024) and Bull Tech Services (2022–2023).
+- Full Stack Software Developer at Advania SA (June 2024–present); previously Clickatell (2023–2024) and Bull Tech Services (2022–2023).
 - National Diploma in Information Technology, Mangosuthu University of Technology (2022).
-- Core stack: C#, ASP.NET Core, Entity Framework Core, React, TypeScript, Tailwind CSS, SQL Server, PostgreSQL, Microsoft Azure, Docker.
-- Services: full stack web development, API design & integration, cloud deployment & architecture, legacy system modernization, performance optimization.
+- Core stack: React, TypeScript, Tailwind CSS, C#, ASP.NET Core, Entity Framework Core, SQL Server, PostgreSQL.
+- What I help with: building a first version of a product (MVP to deployed app with tests), making a web app work offline (installable PWA, offline data, sync), and fixing/speeding up an existing React app.
+
+## Projects
+
+- Cart Wise — a grocery price tracker and shopping-list planner for South Africa. In development: offline-first shopping lists and a seeded SA product catalogue work today; AI pamphlet scanning and the cheapest-store recommendation are next. https://github.com/d-langelihlekhumalo/cart-wise
+- Baby Steps Tracker — a client-side personal-finance planner (Dave Ramsey's 7 Baby Steps), fully offline, no backend. 436 tests, ~99.7% engine coverage. https://baby-steps-tracker.d-langelihlekhumalo.workers.dev
+- Real-Time Task Manager — a real-time task management app using SignalR for live sync between an ASP.NET Core backend and every connected client.
 
 ## Links
 
