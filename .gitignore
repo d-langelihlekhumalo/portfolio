@@ -24,6 +24,9 @@ src/generated/
 .wrangler/
 .dev.vars
 
+# Playwright MCP tool output
+.playwright-mcp/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

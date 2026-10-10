@@ -184,15 +184,18 @@ export const Projects = forwardRef<HTMLElement, ProjectsProps>(
                     View live
                   </Button>
                 )}
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  leftIcon={<GitBranch className="w-4 h-4" />}
-                  onClick={() => window.open(project.github, '_blank', 'noopener,noreferrer')}
-                  aria-label={`View ${project.name} on GitHub`}
-                >
-                  GitHub
-                </Button>
+                {project.repos.map((repo) => (
+                  <Button
+                    key={repo.url}
+                    variant="secondary"
+                    size="sm"
+                    leftIcon={<GitBranch className="w-4 h-4" />}
+                    onClick={() => window.open(repo.url, '_blank', 'noopener,noreferrer')}
+                    aria-label={`View ${project.name} ${repo.label} on GitHub`}
+                  >
+                    {project.repos.length > 1 ? repo.label : 'GitHub'}
+                  </Button>
+                ))}
               </div>
             </Card>
           ))}

@@ -125,15 +125,69 @@ export interface Project {
   features: string[]
   challenges: string[]
   keyAchievements: string[]
-  github: string
+  /** One or more GitHub repos — most projects have one; a split frontend/backend has two. */
+  repos: { label: string; url: string }[]
   /** Live app URL, or null until it's deployed. */
   liveUrl: string | null
   /** True if a `content/projects/<slug>.md` case study exists. */
   hasCaseStudy: boolean
   status: string
+  /** Real screenshot — never a mock-up, stock image, or generated image. */
+  screenshot?: { src: string; alt: string; width: number; height: number }
 }
 
 export const PROJECTS: Project[] = [
+  {
+    id: 'cart-wise',
+    slug: 'cart-wise',
+    name: 'Cart Wise',
+    description:
+      "A grocery price tracker and shopping-list planner for South Africa. Build a list and eventually find out where it's cheapest — one store, or a two-store split. Early development: offline-first lists and a real price catalogue work today; the recommendation engine and pamphlet scanning are next.",
+    overview:
+      "Shopping lists that work offline and sync across devices, on top of a seeded South African grocery catalogue — chains, loyalty-card setup, and manual price logging. The AI pamphlet-scanning pipeline and the actual cheapest-store recommendation (the eventual point of the app) haven't shipped yet.",
+    problem:
+      'A two-store split can be meaningfully cheaper, but working it out by hand across loyalty-card prices, regional pamphlets and bulk-staple unit pricing is not worth the effort for a weekly shop — and a shopping list that needs signal in the aisle is one that gets abandoned.',
+    solution:
+      'Built the offline-first foundation first: accounts, a seeded SA product/store catalogue, loyalty-card and manual price logging, and shopping lists that sync across devices through a tested conflict-merge sync engine — verified to produce the same result whether the merge runs in JS or in SQL.',
+    technologies: [
+      'React',
+      'TypeScript',
+      'Vite',
+      'Hono',
+      'Cloudflare Workers',
+      'D1 + Drizzle',
+      'R2',
+      'Queues',
+      'Durable Objects',
+    ],
+    features: [
+      'Offline-first shopping lists that sync across devices',
+      'Seeded SA grocery catalogue, searchable via SQLite FTS5',
+      'Store, loyalty-card and manual price setup, scoped by region',
+      'Installable PWA — checklist keeps working with no signal',
+    ],
+    challenges: [
+      'A sync protocol proven to merge identically in JS and in SQL, checked with randomised property-based tests',
+      'Modelling SA grocery pricing: loyalty-card member prices, regional pamphlets, multipacks, bulk-staple unit pricing',
+      'Keeping the initial JS budget enforced in CI while layering in TanStack Query, Dexie and offline sync',
+    ],
+    keyAchievements: [
+      'Full offline list sync with a tested merge engine (JS and SQL merges verified to match)',
+      'Seeded SA grocery catalogue: 17 chains, 15 categories, 84 products, searchable via FTS5',
+      'M1–M3 shipped and CI-green; pamphlet scanning and the recommendation engine are next',
+    ],
+    repos: [{ label: 'GitHub', url: 'https://github.com/d-langelihlekhumalo/cart-wise' }],
+    // TODO(andile): set once Cart Wise has a live deployment.
+    liveUrl: null,
+    hasCaseStudy: true,
+    status: 'In development',
+    screenshot: {
+      src: '/projects/cart-wise-list.webp',
+      alt: 'Cart Wise shopping list, grouped by category, with items ticked off as they go in the trolley',
+      width: 1280,
+      height: 720,
+    },
+  },
   {
     id: 'baby-steps-tracker',
     slug: 'baby-steps-tracker',
@@ -175,54 +229,16 @@ export const PROJECTS: Project[] = [
       'CI gate: self-host, PWA, bundle-budget and contrast checks before every deploy',
       'Initial route ~120 kB gzipped against a 250 kB budget',
     ],
-    github: 'https://github.com/d-langelihlekhumalo/baby-steps-tracker',
+    repos: [{ label: 'GitHub', url: 'https://github.com/d-langelihlekhumalo/baby-steps-tracker' }],
     liveUrl: 'https://baby-steps-tracker.d-langelihlekhumalo.workers.dev',
     hasCaseStudy: true,
     status: 'Live',
-  },
-  {
-    id: 'budget-buddy',
-    slug: 'budget-buddy',
-    name: 'Budget Buddy',
-    description: 'A modern, intuitive personal finance management application built with React and TypeScript.',
-    overview:
-      'Budget Buddy helps you take control of your finances by tracking income, managing budgets, monitoring expenses, and achieving your financial goals.',
-    problem:
-      'Many people struggle to manage their finances effectively and lack visibility into their spending patterns.',
-    solution:
-      'Built a finance management platform with real-time dashboards, budget tracking, transaction categorization, and actionable financial insights.',
-    technologies: [
-      'React 18',
-      'TypeScript',
-      'Vite',
-      'Tailwind CSS',
-      'shadcn/ui',
-      'Recharts',
-      'React Query',
-      'Framer Motion',
-    ],
-    features: [
-      'Dashboard overview with key financial metrics',
-      'Budget management with visual progress indicators',
-      'Transaction tracking and categorization',
-      'Financial goal monitoring',
-      'Insights and analytics with data visualization',
-      'Authentication and responsive design',
-    ],
-    challenges: [
-      'Implementing financial calculations and aggregations',
-      'Designing an intuitive UI for data-heavy features',
-      'Keeping data consistent across components',
-    ],
-    keyAchievements: [
-      'Shipped a feature-complete MVP covering budgeting, transactions, and goals',
-      'Built a reusable charting layer for insights and analytics',
-      'Kept state consistent across multiple views with React Query',
-    ],
-    github: 'https://github.com/d-langelihlekhumalo/budget-buddy',
-    liveUrl: null,
-    hasCaseStudy: false,
-    status: 'Completed',
+    screenshot: {
+      src: '/projects/baby-steps-tracker-dashboard.webp',
+      alt: 'Baby Steps Tracker dashboard showing the current baby step, key numbers, and a projected debt-free date',
+      width: 1280,
+      height: 720,
+    },
   },
   {
     id: 'task-manager',
@@ -263,9 +279,13 @@ export const PROJECTS: Project[] = [
       'Handled reconnection and network-disconnection edge cases',
       'Delivered a responsive UI that works across devices',
     ],
-    github: 'https://github.com/d-langelihlekhumalo/real-time-task-manager',
+    repos: [
+      { label: 'Frontend', url: 'https://github.com/d-langelihlekhumalo/real-time-task-manager-frontend' },
+      { label: 'Backend', url: 'https://github.com/d-langelihlekhumalo/real-time-task-manager-backend' },
+    ],
     liveUrl: null,
     hasCaseStudy: false,
     status: 'Completed',
+    // TODO(andile): needs the ASP.NET Core backend running locally to screenshot.
   },
 ]
