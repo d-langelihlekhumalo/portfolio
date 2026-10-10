@@ -35,9 +35,16 @@ function PublicLayout({ isDark, onToggleDarkMode }: PublicLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-on-primary focus:outline-2 focus:outline-text focus:outline-offset-2"
+      >
+        Skip to content
+      </a>
+
       <Navigation isDark={isDark} onToggleDarkMode={onToggleDarkMode} />
 
-      <main className="pt-16">
+      <main id="main-content" className="pt-16">
         <Outlet />
       </main>
 
