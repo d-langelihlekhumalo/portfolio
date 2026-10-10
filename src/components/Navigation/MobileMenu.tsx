@@ -92,6 +92,24 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                 </a>
               );
             })}
+            <a
+              href="#contact"
+              ref={links.length === 0 ? firstLinkRef : undefined}
+              onClick={(e) => {
+                handleAnchorClick({ id: 'contact', label: 'Start a project' }, e);
+                onLinkClick('contact');
+              }}
+              className="mt-2 flex h-11 items-center justify-center rounded-lg bg-primary px-4 text-base font-semibold text-on-primary"
+              style={{
+                opacity: isOpen ? 1 : 0,
+                transform: isOpen ? 'translateX(0)' : 'translateX(-16px)',
+                transitionDelay: isOpen ? `${links.length * 50}ms` : '0ms',
+                transitionDuration: '300ms',
+                transitionTimingFunction: 'ease-out',
+              }}
+            >
+              Start a project
+            </a>
           </div>
         </div>
       )}

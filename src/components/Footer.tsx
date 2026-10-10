@@ -85,7 +85,7 @@ export const Footer = forwardRef<HTMLElement, FooterProps>(
         role="contentinfo"
         {...props}
       >
-        <div className="max-w-6xl mx-auto px-4 md:px-10 py-12 md:py-16">
+        <div className="max-w-[1120px] mx-auto px-4 sm:px-6 py-12 md:py-16">
           {/* Main footer content */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-8 md:mb-12">
             {/* Left column: Developer info */}
@@ -110,9 +110,9 @@ export const Footer = forwardRef<HTMLElement, FooterProps>(
               </h4>
               <ul className="space-y-2" role="list">
                 {[
-                  { label: 'About', href: '#about' },
+                  { label: 'Work', href: '#work' },
                   { label: 'Services', href: '#services' },
-                  { label: 'Projects', href: '#projects' },
+                  { label: 'About', href: '#about' },
                   { label: 'Contact', href: '#contact' },
                 ].map((link, index) => (
                   <li key={index}>
@@ -182,7 +182,7 @@ export const Footer = forwardRef<HTMLElement, FooterProps>(
             </div>
 
             {/* Build info */}
-            <p className="text-xs text-text-secondary/60">
+            <p className="text-xs text-text-secondary">
               Built with React, TypeScript &amp; Tailwind CSS.
             </p>
           </div>

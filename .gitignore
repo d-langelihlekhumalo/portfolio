@@ -16,11 +16,16 @@ dist-ssr
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts
+src/constants/portfolio.js
+src/constants/portfolio.d.ts
 src/generated/
 
 # Cloudflare / Wrangler
 .wrangler/
 .dev.vars
+
+# Playwright MCP tool output
+.playwright-mcp/
 
 # Editor directories and files
 .vscode/*

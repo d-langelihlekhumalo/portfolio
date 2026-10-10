@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
 import { ArrowLeft, ExternalLink, GitBranch } from 'lucide-react'
-import { SectionWrapper, Badge, Button } from '@/components'
+import { SectionWrapper, Button } from '@/components'
 import { usePageMeta } from '@/hooks/usePageMeta'
 import { loadProjectCaseStudy, type ProjectCaseStudy } from '@/content/projectCaseStudy'
 
@@ -66,8 +66,8 @@ function ProjectCaseStudyPage() {
         <div className="flex flex-col items-start gap-4">
           <h1 className="text-3xl font-bold text-text">Case study not found</h1>
           <p className="text-text-secondary">That project doesn&apos;t have a write-up, or the link is out of date.</p>
-          <Button variant="secondary" leftIcon={<ArrowLeft className="w-4 h-4" />} onClick={() => navigate('/#projects')}>
-            Back to Projects
+          <Button variant="secondary" leftIcon={<ArrowLeft className="w-4 h-4" />} onClick={() => navigate('/#work')}>
+            Back to Work
           </Button>
         </div>
       </SectionWrapper>
@@ -78,30 +78,21 @@ function ProjectCaseStudyPage() {
     <SectionWrapper background="default" spacing="lg" variant="contained" role="article" ariaLabel={study.title}>
       <article className="max-w-3xl mx-auto">
         <Link
-          to="/#projects"
+          to="/#work"
           className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-primary transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-          Back to Projects
+          Back to Work
         </Link>
 
-        <div className="flex items-center gap-3 text-sm text-text-secondary mb-3">
-          {study.status && <Badge variant="outline" size="sm">{study.status}</Badge>}
-          {study.year && <span>{study.year}</span>}
-        </div>
+        <p className="text-sm text-text-secondary mb-3">
+          {[study.status, study.year].filter(Boolean).join(' · ')}
+        </p>
 
         <h1 className="text-3xl md:text-4xl font-bold text-text leading-tight mb-4">{study.title}</h1>
         <p className="text-lg text-text-secondary leading-relaxed mb-6">{study.summary}</p>
 
-        {study.tech.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
-            {study.tech.map((t) => (
-              <Badge key={t} variant="default" size="sm">
-                {t}
-              </Badge>
-            ))}
-          </div>
-        )}
+        {study.tech.length > 0 && <p className="text-sm text-text-secondary mb-6">{study.tech.join(' · ')}</p>}
 
         <div className="flex flex-wrap gap-3 mb-10">
           {study.liveUrl && (

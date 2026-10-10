@@ -20,9 +20,6 @@ export interface SectionWrapperProps extends React.HTMLAttributes<HTMLElement> {
   // Container width constraint
   variant?: 'contained' | 'full'
 
-  // Fade-in animation on scroll
-  animate?: boolean
-
   // Accessibility
   role?: string
   ariaLabel?: string
