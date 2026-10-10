@@ -42,10 +42,10 @@ export const Navigation: React.FC<NavigationProps> = ({
             : 'bg-background border-b border-border/0'
         )}
       >
-        {/* Navigation content */}
+        {/* Navigation content — same container as SectionWrapper (1120px, 24px/16px padding) */}
         <div className={cn(
-          'mx-auto max-w-6xl flex items-center justify-between',
-          'px-4 sm:px-gutter md:px-gutter',
+          'mx-auto max-w-[1120px] flex items-center justify-between',
+          'px-4 sm:px-6',
           'h-14 sm:h-15 md:h-16'
         )}>
           {/* Logo */}

@@ -20,8 +20,8 @@ export const HeroVisual = () => {
             x2="100%"
             y2="100%"
           >
-            <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#0EA5E9" stopOpacity="0.1" />
+            <stop offset="0%" stopColor="var(--protea)" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="var(--protea)" stopOpacity="0.1" />
           </linearGradient>
           <linearGradient
             id="grad2"
@@ -30,8 +30,8 @@ export const HeroVisual = () => {
             x2="0%"
             y2="100%"
           >
-            <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#60D5FF" stopOpacity="0.05" />
+            <stop offset="0%" stopColor="var(--fynbos)" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="var(--fynbos)" stopOpacity="0.05" />
           </linearGradient>
         </defs>
 
@@ -59,7 +59,7 @@ export const HeroVisual = () => {
           cy="220"
           r="80"
           fill="none"
-          stroke="#38BDF8"
+          stroke="var(--protea)"
           strokeWidth="2"
           opacity="0.3"
         />
@@ -69,21 +69,21 @@ export const HeroVisual = () => {
           cx="120"
           cy="120"
           r="6"
-          fill="#38BDF8"
+          fill="var(--protea)"
           opacity="0.4"
         />
         <circle
           cx="300"
           cy="140"
           r="4"
-          fill="#0EA5E9"
+          fill="var(--fynbos)"
           opacity="0.3"
         />
         <circle
           cx="280"
           cy="280"
           r="5"
-          fill="#38BDF8"
+          fill="var(--protea)"
           opacity="0.25"
         />
       </svg>

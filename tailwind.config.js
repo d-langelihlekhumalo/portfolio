@@ -1,4 +1,12 @@
 /** @type {import('tailwindcss').Config} */
+
+// Lets `bg-primary/10`, `border-border/40`, etc. work against the protea/fynbos
+// CSS-var tokens: Tailwind can only inject an opacity value into an `rgb(r g b
+// / a)` function, not into a var() holding an opaque hex string, so each
+// semantic colour resolves through its `--<token>-rgb` triplet (see index.css).
+const withOpacity = (rgbVar) => ({ opacityValue }) =>
+  opacityValue === undefined ? `rgb(var(${rgbVar}))` : `rgb(var(${rgbVar}) / ${opacityValue})`
+
 export default {
   content: [
     "./index.html",
@@ -7,17 +15,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: 'var(--background)',
-        surface: 'var(--surface)',
-        primary: '#38BDF8',
-        'primary-dark': '#0284C7',
-        text: 'var(--text)',
-        'text-secondary': 'var(--text-secondary)',
-        success: '#22C55E',
-        border: 'var(--border)',
+        background: withOpacity('--paper-rgb'),
+        surface: withOpacity('--paper-rgb'),
+        primary: withOpacity('--protea-rgb'),
+        'on-primary': 'var(--on-protea)',
+        text: withOpacity('--ink-rgb'),
+        'text-secondary': withOpacity('--muted-rgb'),
+        success: withOpacity('--fynbos-rgb'),
+        border: withOpacity('--line-rgb'),
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Schibsted Grotesk Variable', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono Variable', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       fontSize: {
         xs: ['0.75rem', { lineHeight: '1rem' }],

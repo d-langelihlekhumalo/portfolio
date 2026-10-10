@@ -83,30 +83,31 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       lg: 'px-8 py-4 text-lg leading-[1.6]',
     }
 
-    // Variant-based styling
+    // Variant-based styling. Hover states are a colour/opacity change only —
+    // no lift, scale or shadow (see the brief's Motion section).
     const variantClasses = {
       primary: cn(
-        'bg-primary text-background font-semibold',
-        'hover:opacity-90 hover:shadow-[0_4px_12px_rgba(56,189,248,0.2)] hover:-translate-y-0.5',
-        'active:opacity-80 active:translate-y-0',
+        'bg-primary text-on-primary font-semibold',
+        'hover:opacity-90',
+        'active:opacity-80',
         'focus:outline-2 focus:outline-primary focus:outline-offset-2',
-        'transition-all duration-150 ease-in-out',
-        'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50 disabled:hover:shadow-none disabled:hover:translate-y-0',
+        'transition-opacity duration-150 ease-in-out',
+        'disabled:opacity-50 disabled:cursor-not-allowed',
       ),
       secondary: cn(
-        'bg-[rgba(255,255,255,0.08)] text-text border border-[rgba(255,255,255,0.08)] font-medium',
-        'hover:bg-[rgba(255,255,255,0.12)] hover:border-[rgba(255,255,255,0.12)] hover:shadow-[0_2px_8px_rgba(255,255,255,0.05)]',
-        'active:bg-[rgba(255,255,255,0.16)] active:border-[rgba(255,255,255,0.16)]',
+        'bg-transparent text-text border border-border font-medium',
+        'hover:border-text-secondary',
+        'active:bg-border/40',
         'focus:outline-2 focus:outline-primary focus:outline-offset-2',
-        'transition-all duration-150 ease-in-out',
-        'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50 disabled:hover:shadow-none',
+        'transition-colors duration-150 ease-in-out',
+        'disabled:opacity-50 disabled:cursor-not-allowed',
       ),
       ghost: cn(
         'text-primary font-medium',
-        'hover:text-[#60D5FF] hover:bg-[rgba(56,189,248,0.05)]',
-        'active:text-[#0EA5E9] active:bg-[rgba(56,189,248,0.1)]',
+        'hover:opacity-80',
+        'active:opacity-70',
         'focus:outline-2 focus:outline-primary focus:outline-offset-2',
-        'transition-all duration-150 ease-in-out',
+        'transition-opacity duration-150 ease-in-out',
         'disabled:text-text-secondary disabled:cursor-not-allowed',
       ),
     }

@@ -69,9 +69,10 @@ export const SectionWrapper = forwardRef<HTMLElement, SectionWrapperProps>(
       xl: 'py-16 md:py-24',
     }
 
-    // Container styling - responsive width and padding
+    // Container styling - one container site-wide (matches Navigation.tsx):
+    // 1120px max width, 24px side padding, 16px under 640px.
     const containerClasses = {
-      contained: 'max-w-screen-2xl mx-auto px-4 md:px-10',
+      contained: 'max-w-[1120px] mx-auto px-4 sm:px-6',
       full: 'w-full',
     }
 
@@ -102,11 +103,12 @@ export const SectionWrapper = forwardRef<HTMLElement, SectionWrapperProps>(
         <div className={containerClasses[variant]}>
           {heading && (
             <div className="mb-8">
-              <h2 className="text-4xl md:text-6xl font-bold text-text leading-tight">
+              {/* All section headings are the same size — see the brief's Typography section. */}
+              <h2 className="text-3xl md:text-4xl font-bold text-text leading-tight tracking-tight">
                 {heading}
               </h2>
               {subheading && (
-                <p className="text-base md:text-lg text-text-secondary font-normal mt-3">
+                <p className="text-base md:text-lg text-text-secondary font-normal mt-3 max-w-[68ch]">
                   {subheading}
                 </p>
               )}
