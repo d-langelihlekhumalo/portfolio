@@ -64,6 +64,7 @@ No scroll-triggered reveal anywhere — `SectionWrapper` has no animation logic,
 - Static prerendering via Playwright (`scripts/prerender.mjs`) after `vite build`, so crawlers that don't execute JS still get real content — see the script's own comments before changing the route list or the `js-animations` CSS escape hatch it depends on
 - A markdown blog pipeline (`src/blog/`, `scripts/generate-blog-index.mjs`, `content/blog/`) and project case studies (`content/projects/*.md`, loaded by `src/content/projectCaseStudy.ts`)
 - A Cloudflare-Access-gated admin panel (`src/pages/admin/`, `functions/api/admin/`) for reviewing AI-drafted blog posts — separate from the rest of the site; don't restyle it as part of a public-site redesign without a specific reason to
+- A private learning roadmap at `/admin/roadmap` (`src/pages/admin/roadmap/`) — same Access gate as the admin panel because it lives under `/admin`. Plan content is in `roadmapData.ts` (this repo is public, so keep it free of anything private or employer-specific); progress, notes and artifact links are saved in the browser, and in Workers KV via `functions/api/admin/roadmap/state.ts` when the optional `ROADMAP_KV` binding is set (see `wrangler.jsonc`)
 
 ## Keep working as-is
 

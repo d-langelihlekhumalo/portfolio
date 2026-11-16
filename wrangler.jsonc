@@ -4,4 +4,10 @@
   "name": "andilekhumalo",
   "compatibility_date": "2025-09-04",
   "pages_build_output_dir": "dist"
+
+  // Optional — syncs /admin/roadmap progress across devices. Without it,
+  // progress is saved per-browser. Create the namespace once with
+  //   npx wrangler kv namespace create ROADMAP_KV
+  // then uncomment below (add a comma after the line above) and paste the id.
+  // "kv_namespaces": [{ "binding": "ROADMAP_KV", "id": "<namespace-id>" }]
 }

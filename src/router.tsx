@@ -12,6 +12,8 @@ const ProjectCaseStudyPage = lazy(() => import('@/pages/ProjectCaseStudyPage'))
 // Gated (Cloudflare Access), never shown to public visitors — its own bundle,
 // its own minimal shell, deliberately outside PublicLayout.
 const AdminApp = lazy(() => import('@/pages/admin/AdminApp'))
+// Private learning roadmap — also under /admin, so the same Access gate covers it.
+const RoadmapPage = lazy(() => import('@/pages/admin/roadmap/RoadmapPage'))
 
 function RouteFallback() {
   return <div className="min-h-[50vh]" aria-hidden="true" />
@@ -53,6 +55,17 @@ function AppRouter({ isDark, onToggleDarkMode }: AppRouterProps) {
         />
       </Route>
 
+      {['/admin/roadmap', '/admin/roadmap/:itemId'].map((path) => (
+        <Route
+          key={path}
+          path={path}
+          element={
+            <Suspense fallback={<RouteFallback />}>
+              <RoadmapPage />
+            </Suspense>
+          }
+        />
+      ))}
       <Route
         path="/admin/*"
         element={
