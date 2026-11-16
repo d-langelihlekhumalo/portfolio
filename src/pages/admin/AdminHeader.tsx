@@ -29,6 +29,9 @@ export function AdminHeader({ draftCount }: AdminHeaderProps) {
           <Link to="/blog" className="hover:text-primary transition-colors">
             View blog
           </Link>
+          <Link to="/admin/roadmap" className="hover:text-primary transition-colors">
+            Learning roadmap
+          </Link>
         </nav>
       </div>
 
