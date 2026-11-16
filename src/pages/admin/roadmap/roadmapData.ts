@@ -249,7 +249,7 @@ export const ROADMAP: RoadmapItem[] = [
     priority: 'core',
     start: '2026-12-14',
     end: '2027-02-26',
-    summary: 'Pamphlet scanning + recommendations as an ASP.NET Core service the Cloudflare app calls.',
+    summary: 'Pamphlet extraction (and later product matching) as an ASP.NET Core service the Cloudflare app calls.',
     why: "One project that proves .NET, Azure, AI and API design together — and doubles as the lab for AI-200, AI-103 and DP-800. Cart Wise's roadmap already lists both features.",
     outcome: 'Deployed, tested, and written up as a case study that claims only what works.',
     tasks: [
@@ -259,7 +259,7 @@ export const ROADMAP: RoadmapItem[] = [
       'Managed identity + Key Vault — no secrets in config',
       'Pamphlet upload → Blob Storage → Service Bus → worker',
       'Extract specials with a Foundry vision model; store in Cosmos DB for NoSQL',
-      'Recommendations: embeddings + vector search',
+      'Product matching: embeddings + vector search behind matchProduct() (after AI-103)',
       'OpenTelemetry traces and logs into Application Insights',
       'Integration tests with Testcontainers, running in GitHub Actions',
       'Call the service securely from the Cart Wise Worker',
@@ -269,7 +269,9 @@ export const ROADMAP: RoadmapItem[] = [
       { label: 'Cart Wise repo', url: 'https://github.com/d-langelihlekhumalo/cart-wise' },
       { label: 'Azure Container Apps docs', url: 'https://learn.microsoft.com/azure/container-apps/' },
     ],
-    artifacts: [],
+    artifacts: [
+      { title: 'Cart Wise AI Service — Design', url: 'https://claude.ai/artifact/1usyuFyY8wFxo2moPPf9bV', kind: 'diagram' },
+    ],
   },
 
   // ───────────────────────── 2027 certifications ─────────────────────────
@@ -452,7 +454,7 @@ export const ROADMAP: RoadmapItem[] = [
     end: '2027-07-30',
     summary: 'Generative AI and agents on Microsoft Foundry (replaced AI-102).',
     why: 'Turns the AI skills already on the portfolio into a credential. Agents and generative AI are the biggest slice.',
-    outcome: 'Pass (700+), plus the capstone recommendations rebuilt as a proper RAG pipeline.',
+    outcome: 'Pass (700+), plus capstone product matching built with embeddings and vector search.',
     dependsOn: ['ai-901', 'ai-200'],
     skillsAsOf: 'April 16, 2026',
     domains: [
