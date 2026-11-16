@@ -52,6 +52,7 @@ export const ROADMAP: RoadmapItem[] = [
     summary: 'Cloud concepts, core Azure services, governance and cost — understood, not sat.',
     why: 'The vocabulary every other Azure exam assumes. Light enough for weeknight evenings before leave starts.',
     outcome: 'Score 85%+ on the free practice assessment (no exam booked).',
+    ifSlipping: 'Lightest item, so it gives way first: drop the hands-on labs and go straight to the practice assessment.',
     skillsAsOf: 'July 20, 2026',
     domains: [
       {
@@ -102,6 +103,8 @@ export const ROADMAP: RoadmapItem[] = [
     summary: "Milan Jovanović's course — code along, don't just watch.",
     why: 'Fourteen-plus hours of production REST practice in ASP.NET Core, ending with an Azure deployment. Its conventions become the capstone API.',
     outcome: 'Every module coded along, and the conventions applied to the capstone API.',
+    ifSlipping: 'It feeds the capstone API and AI-200. If behind, skim chapter 05 and the bonuses, and finish 06 and 07 before anything else.',
+    protectedSlot: true,
     tasks: [
       'REST introduction: Richardson Maturity Model, API-first',
       'Building REST APIs: HTTP methods, status codes, resource design',
@@ -131,6 +134,7 @@ export const ROADMAP: RoadmapItem[] = [
     summary: 'Carl-Hugo Marcotte, 3rd edition — 806 pages across four sections.',
     why: 'Fills the design gap between "builds features" and "designs systems". The application-patterns section is the bridge to AZ-305.',
     outcome: 'All four sections read, with one pattern applied to the capstone and written up.',
+    ifSlipping: 'Section 3 moves to the evenings of 4–10 Jan and Section 4 to 11–24 Jan, read alongside AI-200. Chapters 14, 17 and 18 stay before the capstone structure is chosen.',
     dependsOn: ['milan-rest'],
     tasks: [
       'Section 1: principles and methodologies (testing, SOLID, REST APIs)',
@@ -166,6 +170,7 @@ export const ROADMAP: RoadmapItem[] = [
     summary: 'Relational vs non-relational, Azure SQL vs Cosmos DB, analytics basics.',
     why: 'Sets up the data half of AI-200 and the later DP-800. Wire both SQL and Cosmos DB into the capstone while studying it.',
     outcome: 'Score 85%+ on the free practice assessment (no exam booked).',
+    ifSlipping: 'Keep Domain 4 (Fabric and analytics). The Azure SQL hands-on step can move to January; the capstone doesn\'t depend on it.',
     dependsOn: ['az-900'],
     skillsAsOf: 'July 21, 2026',
     domains: [
@@ -220,6 +225,8 @@ export const ROADMAP: RoadmapItem[] = [
     summary: 'AI concepts plus hands-on Microsoft Foundry (replaced AI-900 in June 2026).',
     why: 'More than half the outline is building in Foundry, which is exactly the AI feature the capstone needs — and the on-ramp to AI-103.',
     outcome: 'Score 85%+ on the practice assessment, plus the Foundry feature working in the capstone.',
+    ifSlipping: 'It is the on-ramp to AI-200 and AI-103. If behind, drop image generation and the Speech app; keep the chat client, the agent and Content Understanding.',
+    protectedSlot: true,
     skillsAsOf: 'April 15, 2026',
     domains: [
       {
@@ -260,6 +267,7 @@ export const ROADMAP: RoadmapItem[] = [
     summary: 'Pamphlet extraction (and later product matching) as an ASP.NET Core service the Cloudflare app calls.',
     why: "One project that proves .NET, Azure, AI and API design together — and doubles as the lab for AI-200, AI-103 and DP-800. Cart Wise's roadmap already lists both features.",
     outcome: 'Deployed, tested, and written up as a case study that claims only what works.',
+    ifSlipping: 'Milestone 1 (design + API skeleton) stays in December. Milestones 2 and 3 can slide into January without moving the 26 Feb end date.',
     tasks: [
       'One-page design: API contract and architecture sketch',
       'Scaffold the ASP.NET Core API (.NET 10 LTS) using the course conventions',

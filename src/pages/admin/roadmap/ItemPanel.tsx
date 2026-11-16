@@ -253,6 +253,20 @@ export function ItemPanel({ item, state, onUpdate, onClose, onNavigate }: PanelP
               <SectionTitle>Done when</SectionTitle>
               <p className="text-sm text-text-secondary">{item.outcome}</p>
             </div>
+            {item.ifSlipping && (
+              <div>
+                <SectionTitle
+                  aside={
+                    item.protectedSlot && (
+                      <span className="rounded border border-primary/50 px-1.5 text-[11px] text-primary">Protected</span>
+                    )
+                  }
+                >
+                  If you slip
+                </SectionTitle>
+                <p className="text-sm text-text-secondary">{item.ifSlipping}</p>
+              </div>
+            )}
             {(deps.length > 0 || unlocks.length > 0) && (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {[
