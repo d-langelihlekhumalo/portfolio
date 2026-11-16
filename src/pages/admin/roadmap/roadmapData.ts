@@ -235,7 +235,10 @@ export const ROADMAP: RoadmapItem[] = [
       },
     ],
     resources: [{ label: 'AI-901 study guide', url: `${LEARN}/ai-901` }, PRACTICE],
-    artifacts: [],
+    artifacts: [
+      { title: 'AI-901 Study Guide', url: 'https://claude.ai/artifact/WgqFYWczwFF5RjMiRMrekw', kind: 'study-guide' },
+      { title: 'AI-901 Cheat Sheet', url: 'https://claude.ai/artifact/PyFoE9TkehEP5x7xibV45w', kind: 'cheat-sheet' },
+    ],
   },
   {
     id: 'capstone',
