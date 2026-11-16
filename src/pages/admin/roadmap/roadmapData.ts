@@ -159,6 +159,7 @@ export const ROADMAP: RoadmapItem[] = [
     why: 'Sets up the data half of AI-200 and the later DP-800. Wire both SQL and Cosmos DB into the capstone while studying it.',
     outcome: 'Score 85%+ on the free practice assessment (no exam booked).',
     dependsOn: ['az-900'],
+    skillsAsOf: 'July 21, 2026',
     domains: [
       {
         name: 'Describe core data concepts',
@@ -179,12 +180,12 @@ export const ROADMAP: RoadmapItem[] = [
         name: 'Describe considerations for working with non-relational data on Azure',
         weight: '15–20%',
         topics: [
-          'Describe capabilities of Azure storage',
-          'Describe capabilities and features of Azure Cosmos DB',
+          'Describe the capabilities of Azure storage',
+          'Describe the capabilities and features of Azure Cosmos DB',
         ],
       },
       {
-        name: 'Describe an analytics workload on Azure',
+        name: 'Describe an analytics workload',
         weight: '25–30%',
         topics: [
           'Describe common elements of large-scale analytics',
@@ -194,7 +195,10 @@ export const ROADMAP: RoadmapItem[] = [
       },
     ],
     resources: [{ label: 'DP-900 study guide', url: `${LEARN}/dp-900` }, PRACTICE],
-    artifacts: [],
+    artifacts: [
+      { title: 'DP-900 Study Guide', url: 'https://claude.ai/artifact/1TGnwUJqyTn94UkMzCqg3h', kind: 'study-guide' },
+      { title: 'DP-900 Cheat Sheet', url: 'https://claude.ai/artifact/Fw2w9iqn6mmDJAdNZ93fLW', kind: 'cheat-sheet' },
+    ],
   },
   {
     id: 'ai-901',
