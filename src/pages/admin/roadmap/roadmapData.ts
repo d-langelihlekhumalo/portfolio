@@ -52,6 +52,7 @@ export const ROADMAP: RoadmapItem[] = [
     summary: 'Cloud concepts, core Azure services, governance and cost — understood, not sat.',
     why: 'The vocabulary every other Azure exam assumes. Light enough for weeknight evenings before leave starts.',
     outcome: 'Score 85%+ on the free practice assessment (no exam booked).',
+    skillsAsOf: 'July 20, 2026',
     domains: [
       {
         name: 'Describe cloud concepts',
@@ -84,7 +85,10 @@ export const ROADMAP: RoadmapItem[] = [
       },
     ],
     resources: [{ label: 'AZ-900 study guide', url: `${LEARN}/az-900` }, PRACTICE],
-    artifacts: [],
+    artifacts: [
+      { title: 'AZ-900 Study Guide', url: 'https://claude.ai/artifact/7nSvBHqcGsE8Gt3f7kGCJW', kind: 'study-guide' },
+      { title: 'AZ-900 Cheat Sheet', url: 'https://claude.ai/artifact/BhwrPBduuPk5sbj3X9i1LY', kind: 'cheat-sheet' },
+    ],
   },
   {
     id: 'milan-rest',
