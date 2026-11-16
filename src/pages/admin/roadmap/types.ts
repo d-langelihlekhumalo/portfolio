@@ -49,6 +49,10 @@ export interface RoadmapItem {
   summary: string
   why: string
   outcome: string
+  /** What gives way if this item falls behind — decided in advance, not under pressure. */
+  ifSlipping?: string
+  /** Protected items keep their slot; others give way to them. */
+  protectedSlot?: boolean
   dependsOn?: string[]
   /** Exam skills outline — each topic becomes a checklist entry. */
   domains?: Domain[]
