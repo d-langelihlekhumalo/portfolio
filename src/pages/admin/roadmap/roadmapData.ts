@@ -115,7 +115,9 @@ export const ROADMAP: RoadmapItem[] = [
       'Apply the conventions to the capstone API contract',
     ],
     resources: [{ label: 'Course page', url: 'https://www.milanjovanovic.tech/pragmatic-rest-apis' }],
-    artifacts: [],
+    artifacts: [
+      { title: 'Pragmatic REST APIs — Companion', url: 'https://claude.ai/artifact/MhDaQttGBnPn2rJVcF3XVy', kind: 'notes' },
+    ],
   },
   {
     id: 'book-aspnet',
@@ -144,7 +146,13 @@ export const ROADMAP: RoadmapItem[] = [
         url: 'https://github.com/PacktPublishing/Architecting-ASP.NET-Core-Applications-3E',
       },
     ],
-    artifacts: [],
+    artifacts: [
+      {
+        title: 'Architecting ASP.NET Core Applications — Companion',
+        url: 'https://claude.ai/artifact/WNu97gKAdFnxzVm5q9snrb',
+        kind: 'notes',
+      },
+    ],
   },
   {
     id: 'dp-900',
