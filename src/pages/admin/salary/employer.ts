@@ -46,10 +46,29 @@ export interface EmployerProfile {
   }
   medical: {
     enabled: boolean
-    /** Full monthly contribution to the scheme. */
+    /**
+     * 'plan': enter the scheme's per-person rates and who's on it; totals are derived.
+     * 'total': enter the monthly totals directly (older profiles).
+     */
+    mode: 'plan' | 'total'
+    /** Your plan's name, for your own reference. */
+    planName: string
+    /** Total monthly contribution per person, from the scheme's contribution table. */
+    rates: { main: number; adult: number; child: number }
+    /** Part of each rate that goes to your Medical Savings Account (Saver plans). */
+    msa: { main: number; adult: number; child: number }
+    adults: number
+    children: number
+    /** Children the scheme charges for at most (0 = no cap). */
+    maxChargedChildren: number
+    /** 'main': the company pays the main member's contribution in full; dependants come off your pay. */
+    employerCovers: 'main' | 'amount'
+    employerAmount: number
+    /** Derived in 'plan' mode — full monthly contribution to the scheme. */
     totalMonthly: number
-    /** Portion the employer pays (a taxable fringe benefit). */
+    /** Derived in 'plan' mode — the portion the employer pays (a taxable fringe benefit). */
     employerMonthly: number
+    /** Derived in 'plan' mode — everyone on the plan, including you. */
     members: number
     /** Out-of-pocket medical costs a year (not covered by the scheme) — for the s6B estimate. */
     outOfPocketAnnual: number
@@ -88,6 +107,15 @@ export function emptyProfile(): EmployerProfile {
     },
     medical: {
       enabled: true,
+      mode: 'plan',
+      planName: '',
+      rates: { main: 0, adult: 0, child: 0 },
+      msa: { main: 0, adult: 0, child: 0 },
+      adults: 0,
+      children: 0,
+      maxChargedChildren: 3,
+      employerCovers: 'main',
+      employerAmount: 0,
       totalMonthly: 0,
       employerMonthly: 0,
       members: 1,
@@ -364,4 +392,39 @@ export function fringeTaxCost(p: EmployerProfile, year: TaxYear, f: FringeKind):
     alt.otherFringeBenefits = Math.max(0, base.otherFringeBenefits - (item?.monthly ?? 0) * 12)
   }
   return round2((computeAnnualTax(base).tax - computeAnnualTax(alt).tax) / 12)
+}
+
+/** Children the scheme actually charges for. */
+export const chargedChildren = (m: EmployerProfile['medical']) =>
+  m.maxChargedChildren > 0 ? Math.min(m.children, m.maxChargedChildren) : m.children
+
+/**
+ * In 'plan' mode, derive the totals the tax maths uses from the per-person
+ * rates. Call after every change so stored totals never drift.
+ */
+export function syncMedical(p: EmployerProfile): EmployerProfile {
+  const m = p.medical
+  if (m.mode !== 'plan') return p
+  const adults = Math.max(0, Math.round(m.adults))
+  const children = Math.max(0, Math.round(m.children))
+  const kids = chargedChildren({ ...m, children })
+  const total = m.rates.main + adults * m.rates.adult + kids * m.rates.child
+  const employer = m.employerCovers === 'main' ? m.rates.main : Math.min(m.employerAmount, total)
+  return {
+    ...p,
+    medical: {
+      ...m,
+      adults,
+      children,
+      totalMonthly: round2(total),
+      employerMonthly: round2(employer),
+      members: 1 + adults + children,
+    },
+  }
+}
+
+/** Monthly Medical Savings Account allocation (Saver plans). */
+export function msaMonthly(m: EmployerProfile['medical']) {
+  if (m.mode !== 'plan') return 0
+  return m.msa.main + m.adults * m.msa.adult + chargedChildren(m) * m.msa.child
 }

@@ -1,4 +1,4 @@
-import { payslip, projectYear, type EmployerProfile } from './employer'
+import { payslip, projectYear, syncMedical, type EmployerProfile } from './employer'
 import type { TaxYear } from './taxTables'
 
 /*
@@ -17,7 +17,8 @@ export type WhatIfChange =
   | { kind: 'package'; monthlyAmount: number }
   | { kind: 'pensionRate'; employeePct: number }
   | { kind: 'additionalPension'; type: 'amount' | 'pct'; value: number }
-  | { kind: 'medicalMembers'; members: number }
+  | { kind: 'medicalDependants'; adults: number; children: number }
+  | { kind: 'medicalRates'; main: number; adult: number; child: number }
   | { kind: 'medicalCost'; totalMonthly: number; employerMonthly: number }
   | { kind: 'bonus'; amount: number }
 
@@ -26,8 +27,9 @@ export const CHANGE_LABELS: Record<WhatIfChange['kind'], string> = {
   package: 'My package changes (new offer, promotion)',
   pensionRate: 'I change my pension contribution rate',
   additionalPension: 'I change my additional pension contribution',
-  medicalMembers: 'I add or remove medical aid dependants',
-  medicalCost: 'My medical aid plan changes',
+  medicalDependants: 'I add or remove medical aid dependants',
+  medicalRates: 'I switch medical aid plan',
+  medicalCost: 'My medical aid cost changes',
   bonus: 'I get a bonus this year',
 }
 
@@ -69,13 +71,23 @@ export function applyChanges(p: EmployerProfile, changes: WhatIfChange[]): Emplo
           },
         }
         break
-      case 'medicalMembers':
+      case 'medicalDependants': {
+        const adults = Math.max(0, Math.round(c.adults))
+        const children = Math.max(0, Math.round(c.children))
+        next = {
+          ...next,
+          medical: { ...next.medical, enabled: true, adults, children, members: 1 + adults + children },
+        }
+        break
+      }
+      case 'medicalRates':
         next = {
           ...next,
           medical: {
             ...next.medical,
-            enabled: c.members > 0,
-            members: Math.max(0, c.members),
+            enabled: true,
+            mode: 'plan',
+            rates: { main: c.main, adult: c.adult, child: c.child },
           },
         }
         break
@@ -85,6 +97,7 @@ export function applyChanges(p: EmployerProfile, changes: WhatIfChange[]): Emplo
           medical: {
             ...next.medical,
             enabled: true,
+            mode: 'total',
             totalMonthly: c.totalMonthly,
             employerMonthly: c.employerMonthly,
           },
@@ -102,7 +115,7 @@ export function applyChanges(p: EmployerProfile, changes: WhatIfChange[]): Emplo
         break
     }
   }
-  return next
+  return syncMedical(next)
 }
 
 export interface ScenarioSummary {
@@ -139,7 +152,12 @@ export function compareScenario(p: EmployerProfile, changes: WhatIfChange[], yea
   const delta = Object.fromEntries(
     Object.keys(baseline).map((k) => {
       const key = k as keyof ScenarioSummary
-      return [key, Math.round((scenario[key] - baseline[key]) * 100) / 100]
+      return [
+        key,
+        key === 'effectiveRate'
+          ? Math.round((scenario[key] - baseline[key]) * 1e6) / 1e6
+          : Math.round((scenario[key] - baseline[key]) * 100) / 100,
+      ]
     }),
   ) as unknown as ScenarioSummary
   return { baseline, scenario, delta, sentences: explain(baseline, delta) }
@@ -225,10 +243,22 @@ export const WHAT_IF_TOOL = {
             {
               type: 'object',
               properties: {
-                kind: { const: 'medicalMembers' },
-                members: { type: 'integer' },
+                kind: { const: 'medicalDependants' },
+                adults: { type: 'integer', description: 'Adult dependants (not counting the main member)' },
+                children: { type: 'integer' },
               },
-              required: ['kind', 'members'],
+              required: ['kind', 'adults', 'children'],
+            },
+            {
+              type: 'object',
+              description: 'Switch plan: total monthly contribution per person from the scheme table.',
+              properties: {
+                kind: { const: 'medicalRates' },
+                main: { type: 'number' },
+                adult: { type: 'number' },
+                child: { type: 'number' },
+              },
+              required: ['kind', 'main', 'adult', 'child'],
             },
             {
               type: 'object',
@@ -269,7 +299,7 @@ export function aiContext(
   return [
     `South African salary what-if (${year.label}; SARS tables). Figures computed by my calculator — please explain, don't recompute.`,
     '',
-    `Package: ${p.packageType === 'ctc' ? 'CTC' : 'basic'} ${r0(p.monthlyAmount)}/month, age ${p.age}, pension ${p.retirement.employeePct}% + employer ${p.retirement.employerPct}%, medical aid members ${p.medical.enabled ? p.medical.members : 0}.`,
+    `Package: ${p.packageType === 'ctc' ? 'CTC' : 'basic'} ${r0(p.monthlyAmount)}/month, age ${p.age}, pension ${p.retirement.employeePct}% + employer ${p.retirement.employerPct}%, medical aid ${p.medical.enabled ? `${p.medical.members} people (company pays ${r0(p.medical.employerMonthly)} of ${r0(p.medical.totalMonthly)})` : 'none'}.`,
     `Changes: ${changes.map((c) => JSON.stringify(c)).join('; ') || 'none'}`,
     '',
     '| | Now | Scenario | Change |',

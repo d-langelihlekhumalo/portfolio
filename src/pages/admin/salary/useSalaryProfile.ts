@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { emptyProfile, type EmployerProfile } from './employer'
+import { emptyProfile, syncMedical, type EmployerProfile } from './employer'
 
 /*
  * Same persistence model as the roadmap: always in localStorage, and in Workers
@@ -26,7 +26,7 @@ function withDefaults(p: EmployerProfile & { employerRiskMonthly?: number }): Em
   const legacyRisk = p.employerRiskMonthly
   const { employerRiskMonthly: _drop, ...rest } = p
   void _drop
-  return {
+  return syncMedical({
     ...d,
     ...rest,
     retirement: {
@@ -34,7 +34,14 @@ function withDefaults(p: EmployerProfile & { employerRiskMonthly?: number }): Em
       ...p.retirement,
       additional: { ...d.retirement.additional, ...p.retirement?.additional },
     },
-    medical: { ...d.medical, ...p.medical },
+    medical: {
+      ...d.medical,
+      ...p.medical,
+      // Profiles from before per-person rates stored totals directly.
+      mode: p.medical?.mode ?? (p.medical ? 'total' : 'plan'),
+      rates: { ...d.medical.rates, ...p.medical?.rates },
+      msa: { ...d.medical.msa, ...p.medical?.msa },
+    },
     bonus: { ...d.bonus, ...p.bonus },
     increase: { ...d.increase, ...p.increase },
     allowances: p.allowances ?? [],
@@ -42,7 +49,7 @@ function withDefaults(p: EmployerProfile & { employerRiskMonthly?: number }): Em
     riskBenefits:
       p.riskBenefits ?? (legacyRisk ? [{ id: 'risk', name: 'Risk cover', monthly: legacyRisk }] : d.riskBenefits),
     notes: p.notes ?? {},
-  }
+  })
 }
 
 function readLocal(): EmployerProfile | null {
@@ -128,7 +135,7 @@ export function useSalaryProfile() {
 
   const update = useCallback((fn: (p: EmployerProfile) => EmployerProfile) => {
     dirty.current = true
-    setProfile((p) => ({ ...fn(p), updatedAt: new Date().toISOString() }))
+    setProfile((p) => ({ ...syncMedical(fn(p)), updatedAt: new Date().toISOString() }))
   }, [])
 
   const reset = useCallback(() => {

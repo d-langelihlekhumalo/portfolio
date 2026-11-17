@@ -95,7 +95,16 @@ export function Payslip({ m, p, onOpen }: { m: ProjectionMonth; p: EmployerProfi
     { label: 'PAYE Tax', amount: payeBeforeCredit, about: 'paye', tag: m.bonusTax > 0 ? 'incl. bonus tax' : undefined },
     { label: 'UIF Contribution', amount: s.uif, about: 'uif' },
     ...(s.employeeMedical > 0
-      ? [{ label: 'Medical aid (your share)', amount: s.employeeMedical, about: 'medical-employer' }]
+      ? [
+          {
+            label:
+              p.medical.mode === 'plan' && p.medical.employerCovers === 'main'
+                ? 'Medical aid (dependants)'
+                : 'Medical aid (your share)',
+            amount: s.employeeMedical,
+            about: 'medical-dependants',
+          },
+        ]
       : []),
     ...s.otherDeductions.map((d) => ({ label: d.name, amount: d.amount })),
   ]

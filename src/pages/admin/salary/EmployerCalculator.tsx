@@ -105,6 +105,129 @@ function LineItems<T extends LineItem>({
   )
 }
 
+function MedicalPlanFields({ p, set }: { p: EmployerProfile; set: (patch: Partial<EmployerProfile>) => void }) {
+  const m = p.medical
+  const med = (patch: Partial<EmployerProfile['medical']>) => set({ medical: { ...m, ...patch } })
+  const yourShare = Math.max(0, m.totalMonthly - m.employerMonthly)
+  return (
+    <>
+      <label className="block">
+        <span className="block text-xs font-medium text-text-secondary">Plan</span>
+        <input
+          className={cn(inputClass, 'mt-1 normal-nums')}
+          value={m.planName}
+          placeholder="e.g. your scheme and plan"
+          onChange={(e) => med({ planName: e.target.value })}
+        />
+      </label>
+      <div>
+        <p className="text-xs font-medium text-text-secondary">Total contribution per person / month</p>
+        <div className="mt-1 grid grid-cols-3 gap-2">
+          <NumberField
+            label="Main"
+            prefix="R"
+            step={50}
+            value={m.rates.main}
+            onChange={(n) => med({ rates: { ...m.rates, main: n } })}
+          />
+          <NumberField
+            label="Adult"
+            prefix="R"
+            step={50}
+            value={m.rates.adult}
+            onChange={(n) => med({ rates: { ...m.rates, adult: n } })}
+          />
+          <NumberField
+            label="Child"
+            prefix="R"
+            step={50}
+            value={m.rates.child}
+            onChange={(n) => med({ rates: { ...m.rates, child: n } })}
+          />
+        </div>
+        <p className="mt-1 text-[11px] leading-snug text-text-secondary">
+          From the scheme's contribution table — use the total column (it includes any savings account portion).
+        </p>
+      </div>
+      <Field2>
+        <NumberField
+          label="Adult dependants"
+          min={0}
+          max={6}
+          value={m.adults}
+          onChange={(n) => med({ adults: Math.max(0, Math.round(n)) })}
+          hint="Spouse, partner, parent"
+        />
+        <NumberField
+          label="Child dependants"
+          min={0}
+          max={10}
+          value={m.children}
+          onChange={(n) => med({ children: Math.max(0, Math.round(n)) })}
+          hint={m.maxChargedChildren > 0 ? `Charged for up to ${m.maxChargedChildren}` : undefined}
+        />
+      </Field2>
+      <SelectField
+        label="The company pays"
+        value={m.employerCovers}
+        onChange={(v) => med({ employerCovers: v })}
+        options={[
+          { value: 'main', label: 'The main member in full' },
+          { value: 'amount', label: 'A fixed amount' },
+        ]}
+      />
+      {m.employerCovers === 'amount' && (
+        <NumberField
+          label="Company pays / month"
+          prefix="R"
+          step={100}
+          value={m.employerAmount}
+          onChange={(n) => med({ employerAmount: n })}
+        />
+      )}
+      <p className="rounded-lg bg-text/[0.04] px-3 py-2 text-xs text-text-secondary">
+        Scheme total <span className="font-semibold text-text tabular-nums">{rand0(m.totalMonthly)}</span> · company{' '}
+        <span className="font-semibold text-text tabular-nums">{rand0(m.employerMonthly)}</span> · from your pay{' '}
+        <span className="font-semibold text-text tabular-nums">{rand0(yourShare)}</span> · {m.members}{' '}
+        {m.members === 1 ? 'person' : 'people'}
+      </p>
+      <Disclosure title="Savings account portion (optional)">
+        <div className="grid grid-cols-3 gap-2">
+          <NumberField
+            label="Main"
+            prefix="R"
+            step={10}
+            value={m.msa.main}
+            onChange={(n) => med({ msa: { ...m.msa, main: n } })}
+          />
+          <NumberField
+            label="Adult"
+            prefix="R"
+            step={10}
+            value={m.msa.adult}
+            onChange={(n) => med({ msa: { ...m.msa, adult: n } })}
+          />
+          <NumberField
+            label="Child"
+            prefix="R"
+            step={10}
+            value={m.msa.child}
+            onChange={(n) => med({ msa: { ...m.msa, child: n } })}
+          />
+        </div>
+        <NumberField
+          label="Most children charged"
+          min={0}
+          max={10}
+          value={m.maxChargedChildren}
+          onChange={(n) => med({ maxChargedChildren: Math.max(0, Math.round(n)) })}
+          hint="0 = every child is charged. Check your scheme's rules."
+        />
+      </Disclosure>
+    </>
+  )
+}
+
 function ProfileEditor({ p, update }: { p: EmployerProfile; update: Update }) {
   const set = (patch: Partial<EmployerProfile>) => update((cur) => ({ ...cur, ...patch }))
   return (
@@ -221,36 +344,44 @@ function ProfileEditor({ p, update }: { p: EmployerProfile; update: Update }) {
         />
         {p.medical.enabled && (
           <>
-            <Field2>
-              <NumberField
-                label="Total contribution / month"
-                prefix="R"
-                step={100}
-                value={p.medical.totalMonthly}
-                onChange={(n) => set({ medical: { ...p.medical, totalMonthly: n } })}
-              />
-              <NumberField
-                label="Employer pays / month"
-                prefix="R"
-                step={100}
-                value={p.medical.employerMonthly}
-                onChange={(n) => set({ medical: { ...p.medical, employerMonthly: n } })}
-              />
-            </Field2>
-            <NumberField
-              label="People on the plan (incl. you)"
-              value={p.medical.members}
-              min={1}
-              max={12}
-              onChange={(n) =>
-                set({
-                  medical: {
-                    ...p.medical,
-                    members: Math.max(1, Math.round(n)),
-                  },
-                })
-              }
+            <SelectField
+              label="Enter it as"
+              value={p.medical.mode}
+              onChange={(v) => set({ medical: { ...p.medical, mode: v } })}
+              options={[
+                { value: 'plan', label: 'Plan rates per person' },
+                { value: 'total', label: 'Monthly totals' },
+              ]}
             />
+            {p.medical.mode === 'plan' ? (
+              <MedicalPlanFields p={p} set={set} />
+            ) : (
+              <>
+                <Field2>
+                  <NumberField
+                    label="Total contribution / month"
+                    prefix="R"
+                    step={100}
+                    value={p.medical.totalMonthly}
+                    onChange={(n) => set({ medical: { ...p.medical, totalMonthly: n } })}
+                  />
+                  <NumberField
+                    label="Employer pays / month"
+                    prefix="R"
+                    step={100}
+                    value={p.medical.employerMonthly}
+                    onChange={(n) => set({ medical: { ...p.medical, employerMonthly: n } })}
+                  />
+                </Field2>
+                <NumberField
+                  label="People on the plan (incl. you)"
+                  value={p.medical.members}
+                  min={1}
+                  max={12}
+                  onChange={(n) => set({ medical: { ...p.medical, members: Math.max(1, Math.round(n)) } })}
+                />
+              </>
+            )}
           </>
         )}
       </Disclosure>

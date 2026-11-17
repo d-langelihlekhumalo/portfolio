@@ -80,7 +80,7 @@ export function BenefitsView({ p, year, onOpen }: { p: EmployerProfile; year: Ta
   const taxCost = cards.reduce((sum, c) => sum + c.taxCost, 0)
   const hasNotes = (id: string) => !!(p.notes[id]?.terms.trim() || p.notes[id]?.link)
 
-  const deductionIds = ['pension-employee', 'pension-additional', 'medical-credit', 'paye', 'uif']
+  const deductionIds = ['pension-employee', 'pension-additional', 'medical-dependants', 'medical-credit', 'paye', 'uif']
 
   return (
     <div className="space-y-10">

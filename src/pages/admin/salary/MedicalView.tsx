@@ -1,5 +1,6 @@
 import { cn } from '@/utils/cn'
-import { projectYear, type EmployerProfile } from './employer'
+import { msaMonthly, payslip, projectYear, syncMedical, type EmployerProfile } from './employer'
+import { compareScenario } from './whatIf'
 import { medicalSummary } from './medical'
 import type { TaxYear } from './taxTables'
 import { NumberField, SectionTitle, Stat, Toggle, focusRing, rand, rand0 } from './ui'
@@ -35,6 +36,30 @@ export function MedicalView({
     outOfPocketAnnual: p.medical.outOfPocketAnnual,
     disability: p.medical.disability,
     taxableIncome: taxable,
+  })
+  const net = payslip(p, year).net
+  const trueCost = Math.max(0, payslip({ ...p, medical: { ...p.medical, enabled: false } }, year).net - net)
+  const msa = msaMonthly(p.medical)
+  const family = [
+    { label: '+ a partner or other adult', adults: 1, children: 0 },
+    { label: '+ a child', adults: 0, children: 1 },
+    { label: '+ a partner and a child', adults: 1, children: 1 },
+  ].map((f) => {
+    const r = compareScenario(
+      p,
+      [{ kind: 'medicalDependants', adults: p.medical.adults + f.adults, children: p.medical.children + f.children }],
+      year,
+    )
+    const after = syncMedical({
+      ...p,
+      medical: { ...p.medical, adults: p.medical.adults + f.adults, children: p.medical.children + f.children },
+    })
+    return {
+      label: f.label,
+      premium: after.medical.totalMonthly - p.medical.totalMonthly,
+      credit: r.delta.medicalCreditMonthly,
+      net: r.delta.netMonthly,
+    }
   })
   const setMed = (patch: Partial<EmployerProfile['medical']>) =>
     update((cur) => ({ ...cur, medical: { ...cur.medical, ...patch } }))
@@ -78,22 +103,15 @@ export function MedicalView({
             {link('medical-employer', 'How the employer amount is taxed')}
           </p>
           <div className="mt-6 rounded-lg border border-border p-4">
-            <p className="text-xs text-text-secondary">What the scheme really costs you a month</p>
-            {p.medical.employerMonthly > 0 && p.packageType === 'ctc' ? (
-              <p className="mt-1 text-sm text-text">
-                In a CTC package the company amount is your money too, so the whole{' '}
-                <span className="font-semibold">{rand0(p.medical.totalMonthly)}</span> comes out of the package, the{' '}
-                <span className="font-semibold">{rand0(m.creditMonthly)}</span> credit comes back through PAYE: about{' '}
-                <span className="font-semibold">{rand0(p.medical.totalMonthly - m.creditMonthly)}</span> net, before the
-                tax effect of the fringe benefit.
-              </p>
-            ) : (
-              <p className="mt-1 text-sm text-text">
-                Your share <span className="font-semibold">{rand0(m.youAnnual / 12)}</span> less the{' '}
-                <span className="font-semibold">{rand0(m.creditMonthly)}</span> credit ≈{' '}
-                <span className="font-semibold">{rand0(m.netCostToYouMonthly)}</span>.
-              </p>
-            )}
+            <p className="text-xs text-text-secondary">What medical aid really costs your take-home</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-text">{rand0(trueCost)} / month</p>
+            <p className="mt-1 text-sm text-text-secondary">
+              Take-home with medical aid vs without it — after the company's share, the fringe-benefit tax and the{' '}
+              {rand0(m.creditMonthly)} credit
+              {p.packageType === 'ctc' && p.medical.employerMonthly > 0
+                ? '. In a CTC package the company amount would otherwise be paid to you, so it counts.'
+                : '.'}
+            </p>
           </div>
         </section>
 
@@ -172,6 +190,52 @@ export function MedicalView({
           </p>
         </section>
       </div>
+
+      {p.medical.mode === 'plan' && p.medical.rates.main > 0 && (
+        <section>
+          <SectionTitle
+            aside={
+              <span className="text-xs text-text-secondary">
+                {p.medical.planName || 'Your plan'}, company pays the main member
+              </span>
+            }
+          >
+            What adding family would cost you
+          </SectionTitle>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[34rem] text-sm">
+              <thead>
+                <tr className="border-b border-border text-xs text-text-secondary">
+                  <th className="pb-2 text-left font-medium" />
+                  <th className="pb-2 text-right font-medium">Extra premium</th>
+                  <th className="pb-2 text-right font-medium">Extra tax credit</th>
+                  <th className="pb-2 text-right font-medium">Take-home change</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {family.map((f) => (
+                  <tr key={f.label}>
+                    <td className="py-2 pr-3 text-text">{f.label}</td>
+                    <td className="py-2 pl-3 text-right tabular-nums text-text">{rand0(f.premium)}</td>
+                    <td className="py-2 pl-3 text-right tabular-nums text-text">{rand0(f.credit)}</td>
+                    <td className="py-2 pl-3 text-right font-semibold tabular-nums text-primary">−{rand0(-f.net)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-sm text-text-secondary">
+            Dependants' contributions come off your pay after tax; the medical tax credit for each one lowers your PAYE,
+            so the real cost is the premium less the credit. Try other combinations on the What if tab.
+          </p>
+          {msa > 0 && (
+            <p className="mt-2 text-sm text-text-secondary">
+              Medical Savings Account: about <span className="font-semibold text-text">{rand0(msa * 12)}</span> a year
+              for day-to-day costs with your current members ({rand0(msa)} of the monthly contribution).
+            </p>
+          )}
+        </section>
+      )}
     </div>
   )
 }

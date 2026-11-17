@@ -20,7 +20,8 @@ interface Draft {
   package: { on: boolean; monthlyAmount: number }
   pensionRate: { on: boolean; employeePct: number }
   additionalPension: { on: boolean; type: 'amount' | 'pct'; value: number }
-  medicalMembers: { on: boolean; members: number }
+  medicalDependants: { on: boolean; adults: number; children: number }
+  medicalRates: { on: boolean; main: number; adult: number; child: number }
   medicalCost: { on: boolean; totalMonthly: number; employerMonthly: number }
   bonus: { on: boolean; amount: number }
 }
@@ -34,10 +35,8 @@ const draftFrom = (p: EmployerProfile): Draft => ({
     type: p.retirement.additional.type,
     value: p.retirement.additional.value + (p.retirement.additional.type === 'pct' ? 2 : 1000),
   },
-  medicalMembers: {
-    on: false,
-    members: (p.medical.enabled ? p.medical.members : 0) + 1,
-  },
+  medicalDependants: { on: false, adults: p.medical.adults, children: p.medical.children },
+  medicalRates: { on: false, ...p.medical.rates },
   medicalCost: {
     on: false,
     totalMonthly: p.medical.totalMonthly,
@@ -57,7 +56,15 @@ function toChanges(d: Draft): WhatIfChange[] {
       type: d.additionalPension.type,
       value: d.additionalPension.value,
     })
-  if (d.medicalMembers.on) out.push({ kind: 'medicalMembers', members: d.medicalMembers.members })
+  if (d.medicalDependants.on)
+    out.push({ kind: 'medicalDependants', adults: d.medicalDependants.adults, children: d.medicalDependants.children })
+  if (d.medicalRates.on)
+    out.push({
+      kind: 'medicalRates',
+      main: d.medicalRates.main,
+      adult: d.medicalRates.adult,
+      child: d.medicalRates.child,
+    })
   if (d.medicalCost.on)
     out.push({
       kind: 'medicalCost',
@@ -88,13 +95,17 @@ const PRESETS: {
     }),
   },
   {
-    label: 'Add a dependant to medical aid',
+    label: 'Add my partner to medical aid',
     apply: (d, p) => ({
       ...d,
-      medicalMembers: {
-        on: true,
-        members: (p.medical.enabled ? p.medical.members : 0) + 1,
-      },
+      medicalDependants: { on: true, adults: p.medical.adults + 1, children: p.medical.children },
+    }),
+  },
+  {
+    label: 'Add a child to medical aid',
+    apply: (d, p) => ({
+      ...d,
+      medicalDependants: { on: true, adults: p.medical.adults, children: p.medical.children + 1 },
     }),
   },
   {
@@ -266,35 +277,77 @@ export function WhatIfView({ p, year }: { p: EmployerProfile; year: TaxYear }) {
           />
         </Row>
         <Row
-          on={draft.medicalMembers.on}
-          onToggle={(on) => set('medicalMembers', { on })}
-          label={CHANGE_LABELS.medicalMembers}
+          on={draft.medicalDependants.on}
+          onToggle={(on) => set('medicalDependants', { on })}
+          label={CHANGE_LABELS.medicalDependants}
         >
           <NumberField
-            label="People on the plan"
+            label="Adult dependants"
             min={0}
-            max={12}
-            value={draft.medicalMembers.members}
-            onChange={(n) => set('medicalMembers', { members: Math.round(n) })}
-            hint="Credits only — change the cost below too if the premium changes."
-          />
-        </Row>
-        <Row on={draft.medicalCost.on} onToggle={(on) => set('medicalCost', { on })} label={CHANGE_LABELS.medicalCost}>
-          <NumberField
-            label="Total / month"
-            prefix="R"
-            step={100}
-            value={draft.medicalCost.totalMonthly}
-            onChange={(n) => set('medicalCost', { totalMonthly: n })}
+            max={6}
+            value={draft.medicalDependants.adults}
+            onChange={(n) => set('medicalDependants', { adults: Math.max(0, Math.round(n)) })}
+            hint={`Now ${p.medical.adults}`}
           />
           <NumberField
-            label="Company pays / month"
-            prefix="R"
-            step={100}
-            value={draft.medicalCost.employerMonthly}
-            onChange={(n) => set('medicalCost', { employerMonthly: n })}
+            label="Child dependants"
+            min={0}
+            max={10}
+            value={draft.medicalDependants.children}
+            onChange={(n) => set('medicalDependants', { children: Math.max(0, Math.round(n)) })}
+            hint={`Now ${p.medical.children}`}
           />
         </Row>
+        {p.medical.mode === 'plan' ? (
+          <Row
+            on={draft.medicalRates.on}
+            onToggle={(on) => set('medicalRates', { on })}
+            label={CHANGE_LABELS.medicalRates}
+          >
+            <NumberField
+              label="Main / month"
+              prefix="R"
+              step={50}
+              value={draft.medicalRates.main}
+              onChange={(n) => set('medicalRates', { main: n })}
+            />
+            <NumberField
+              label="Adult / month"
+              prefix="R"
+              step={50}
+              value={draft.medicalRates.adult}
+              onChange={(n) => set('medicalRates', { adult: n })}
+            />
+            <NumberField
+              label="Child / month"
+              prefix="R"
+              step={50}
+              value={draft.medicalRates.child}
+              onChange={(n) => set('medicalRates', { child: n })}
+            />
+          </Row>
+        ) : (
+          <Row
+            on={draft.medicalCost.on}
+            onToggle={(on) => set('medicalCost', { on })}
+            label={CHANGE_LABELS.medicalCost}
+          >
+            <NumberField
+              label="Total / month"
+              prefix="R"
+              step={100}
+              value={draft.medicalCost.totalMonthly}
+              onChange={(n) => set('medicalCost', { totalMonthly: n })}
+            />
+            <NumberField
+              label="Company pays / month"
+              prefix="R"
+              step={100}
+              value={draft.medicalCost.employerMonthly}
+              onChange={(n) => set('medicalCost', { employerMonthly: n })}
+            />
+          </Row>
+        )}
         <Row on={draft.bonus.on} onToggle={(on) => set('bonus', { on })} label={CHANGE_LABELS.bonus}>
           <NumberField
             label="Bonus (gross)"

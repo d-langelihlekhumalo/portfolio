@@ -58,6 +58,14 @@ export function figuresFor(id: string, p: EmployerProfile, year: TaxYear): Drawe
           monthly: fringeTaxCost(p, year, { kind: 'medical' }),
         },
       ]
+    case 'medical-dependants': {
+      const credit = s.medicalCreditMonthly - (p.medical.enabled ? year.medicalCredits.main : 0)
+      return [
+        { label: 'From your pay', monthly: s.employeeMedical },
+        { label: 'Credit for your dependants', monthly: Math.max(0, credit), note: 'Lowers PAYE' },
+        { label: 'Net cost', monthly: round2(s.employeeMedical - Math.max(0, credit)) },
+      ]
+    }
     case 'medical-credit':
       return [{ label: 'Credit off your tax', monthly: s.medicalCreditMonthly }]
     case 'paye':

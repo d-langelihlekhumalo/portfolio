@@ -179,6 +179,30 @@ export const BENEFITS: BenefitInfo[] = [
     sources: [S.fringe, S.mtc],
   },
   {
+    id: 'medical-dependants',
+    title: 'Medical aid – your contribution',
+    payslipLines: ['Medical aid deduction'],
+    group: 'deduction',
+    summary:
+      'The part of the scheme contribution you pay — typically your dependants when the company covers the main member. Deducted from your pay after tax.',
+    sections: [
+      {
+        heading: 'How it is taxed',
+        body: [
+          'It is not deductible from your income, but every person on the plan earns the monthly medical tax credit, which lowers your PAYE.',
+          'So adding a dependant costs you their premium less their credit (R376 for the first dependant, R254 for each one after that, 2027 tax year).',
+          'Your contributions also count towards the additional medical expenses credit when you file — see the Medical aid tab.',
+        ],
+      },
+    ],
+    ask: [
+      'Does the company subsidy ever extend to dependants?',
+      'When can you add a dependant — any time, or only at certain dates or life events (marriage, birth)?',
+      'Are there waiting periods or late-joiner penalties for adults added later?',
+    ],
+    sources: [S.mtc, S.mtcRates, S.amtc],
+  },
+  {
     id: 'medical-credit',
     title: 'Medical aid tax credit applied',
     payslipLines: ['Med. Aid Tax Credit Applied'],
