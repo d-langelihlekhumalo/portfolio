@@ -244,6 +244,9 @@ function RoadmapPage() {
             <Link to="/admin" className="hover:text-primary">
               Blog admin
             </Link>
+            <Link to="/admin/salary" className="hover:text-primary">
+              Salary &amp; tax
+            </Link>
           </nav>
         </div>
         <div className="mx-auto flex max-w-[1280px] flex-wrap items-end justify-between gap-4 px-4 pb-8 pt-6 sm:px-6">
@@ -400,7 +403,7 @@ function RoadmapPage() {
           <input ref={fileRef} type="file" accept="application/json" onChange={importState} className="hidden" />
           {importError && <span className="text-primary">{importError}</span>}
           {mode === 'local' && (
-            <span>Progress is stored in this browser. Bind ROADMAP_KV to sync across devices.</span>
+            <span>Progress is stored in this browser. Bind ADMIN_KV to sync across devices.</span>
           )}
         </footer>
       </main>
