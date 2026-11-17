@@ -1,14 +1,45 @@
-import { useState, type ReactNode } from 'react'
+import { useCallback, useState, type ReactNode } from 'react'
+import { NavLink, useSearchParams } from 'react-router-dom'
 import { Plus, Trash2 } from 'lucide-react'
 import { cn } from '@/utils/cn'
-import { payslip, projectYear, type Allowance, type EmployerProfile, type LineItem, type ProjectionMonth } from './employer'
+import {
+  payslip,
+  projectYear,
+  type Allowance,
+  type BenefitNote,
+  type EmployerProfile,
+  type LineItem,
+  type ProjectionMonth,
+} from './employer'
 import { TAX_YEARS, taxYearById } from './taxTables'
-import { NumberField, RankedBars, SectionTitle, SelectField, Stat, Toggle, Disclosure, focusRing, inputClass, pct, rand, rand0 } from './ui'
+import { BENEFIT_BY_ID, riskInfo } from './benefitInfo'
+import { BenefitDrawer } from './BenefitDrawer'
+import { BenefitsView } from './BenefitsView'
+import { MedicalView } from './MedicalView'
+import { WhatIfView } from './WhatIfView'
+import { Payslip } from './Payslip'
+import { figuresFor } from './drawerFigures'
+import {
+  NumberField,
+  RankedBars,
+  SectionTitle,
+  SelectField,
+  Stat,
+  Toggle,
+  Disclosure,
+  focusRing,
+  inputClass,
+  pct,
+  rand,
+  rand0,
+} from './ui'
 
-const MONTH_OPTIONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((label, i) => ({
-  value: i + 1,
-  label,
-}))
+const MONTH_OPTIONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map(
+  (label, i) => ({
+    value: i + 1,
+    label,
+  }),
+)
 
 const newId = () => Math.random().toString(36).slice(2, 10)
 
@@ -129,6 +160,42 @@ function ProfileEditor({ p, update }: { p: EmployerProfile; update: Update }) {
                 onChange={(n) => set({ retirement: { ...p.retirement, employerPct: n } })}
               />
             </Field2>
+            <Field2>
+              <SelectField
+                label="Additional contribution as"
+                value={p.retirement.additional.type}
+                onChange={(v) =>
+                  set({
+                    retirement: {
+                      ...p.retirement,
+                      additional: { ...p.retirement.additional, type: v },
+                    },
+                  })
+                }
+                options={[
+                  { value: 'amount', label: 'Rand amount' },
+                  { value: 'pct', label: '% of salary' },
+                ]}
+              />
+              <NumberField
+                label={p.retirement.additional.type === 'amount' ? 'Additional / month' : 'Additional %'}
+                prefix={p.retirement.additional.type === 'amount' ? 'R' : undefined}
+                suffix={p.retirement.additional.type === 'pct' ? '%' : undefined}
+                step={p.retirement.additional.type === 'amount' ? 250 : 0.5}
+                value={p.retirement.additional.value}
+                onChange={(n) =>
+                  set({
+                    retirement: {
+                      ...p.retirement,
+                      additional: { ...p.retirement.additional, value: n },
+                    },
+                  })
+                }
+              />
+            </Field2>
+            <p className="-mt-2 text-[11px] leading-snug text-text-secondary">
+              “Additional Staff Pension Contr” on the payslip.
+            </p>
             <SelectField
               label="Percentages are of"
               value={p.retirement.base}
@@ -175,7 +242,14 @@ function ProfileEditor({ p, update }: { p: EmployerProfile; update: Update }) {
               value={p.medical.members}
               min={1}
               max={12}
-              onChange={(n) => set({ medical: { ...p.medical, members: Math.max(1, Math.round(n)) } })}
+              onChange={(n) =>
+                set({
+                  medical: {
+                    ...p.medical,
+                    members: Math.max(1, Math.round(n)),
+                  },
+                })
+              }
             />
           </>
         )}
@@ -185,7 +259,12 @@ function ProfileEditor({ p, update }: { p: EmployerProfile; update: Update }) {
         <LineItems<Allowance>
           items={p.allowances}
           onChange={(allowances) => set({ allowances })}
-          make={() => ({ id: newId(), name: 'Cellphone allowance', monthly: 0, kind: 'taxable' })}
+          make={() => ({
+            id: newId(),
+            name: 'Cellphone allowance',
+            monthly: 0,
+            kind: 'taxable',
+          })}
           addLabel="Add allowance"
           extra={(a, setA) => (
             <select
@@ -208,15 +287,16 @@ function ProfileEditor({ p, update }: { p: EmployerProfile; update: Update }) {
         )}
       </Disclosure>
 
-      <Disclosure title="Other employer-paid cover">
-        <NumberField
-          label="Employer-paid risk cover outside the fund / month"
-          prefix="R"
-          step={50}
-          value={p.employerRiskMonthly}
-          onChange={(n) => set({ employerRiskMonthly: n })}
-          hint="Group life, disability or funeral cover the employer pays for you — a taxable fringe benefit."
+      <Disclosure title="Company-paid cover">
+        <LineItems<LineItem>
+          items={p.riskBenefits}
+          onChange={(riskBenefits) => set({ riskBenefits })}
+          make={() => ({ id: newId(), name: 'Income protection', monthly: 0 })}
+          addLabel="Add cover"
         />
+        <p className="text-[11px] leading-snug text-text-secondary">
+          Monthly premium the company pays for each. Each is also taxed as a fringe benefit.
+        </p>
       </Disclosure>
 
       <Disclosure title="Payroll deductions (after tax)">
@@ -283,7 +363,15 @@ function Field2({ children }: { children: ReactNode }) {
 
 /* ───────────────────────── Results ───────────────────────── */
 
-function MonthColumns({ months, selected, onSelect }: { months: ProjectionMonth[]; selected: number; onSelect: (m: number) => void }) {
+function MonthColumns({
+  months,
+  selected,
+  onSelect,
+}: {
+  months: ProjectionMonth[]
+  selected: number
+  onSelect: (m: number) => void
+}) {
   const [hover, setHover] = useState<number | null>(null)
   const max = Math.max(1, ...months.map((m) => m.net))
   const shown = months.find((m) => m.month === (hover ?? selected))
@@ -294,32 +382,38 @@ function MonthColumns({ months, selected, onSelect }: { months: ProjectionMonth[
           const active = m.month === selected
           return (
             <li key={m.month} className="flex h-full flex-1">
-            <button
-              type="button"
-              onClick={() => onSelect(m.month)}
-              onMouseEnter={() => setHover(m.month)}
-              onMouseLeave={() => setHover(null)}
-              onFocus={() => setHover(m.month)}
-              onBlur={() => setHover(null)}
-              aria-label={`${m.label}: take-home ${rand(m.net)}${m.bonusGross ? `, including bonus ${rand(m.bonusGross)}` : ''}`}
-              aria-pressed={active}
-              className={cn('group flex h-full flex-1 flex-col justify-end rounded-t', focusRing)}
-            >
-              <span
-                className={cn(
-                  'block w-full rounded-t-[4px]',
-                  active ? 'bg-primary' : 'bg-text-secondary/35 group-hover:bg-text-secondary/55',
-                )}
-                style={{ height: `${(m.net / max) * 100}%` }}
-              />
-            </button>
+              <button
+                type="button"
+                onClick={() => onSelect(m.month)}
+                onMouseEnter={() => setHover(m.month)}
+                onMouseLeave={() => setHover(null)}
+                onFocus={() => setHover(m.month)}
+                onBlur={() => setHover(null)}
+                aria-label={`${m.label}: take-home ${rand(m.net)}${m.bonusGross ? `, including bonus ${rand(m.bonusGross)}` : ''}`}
+                aria-pressed={active}
+                className={cn('group flex h-full flex-1 flex-col justify-end rounded-t', focusRing)}
+              >
+                <span
+                  className={cn(
+                    'block w-full rounded-t-[4px]',
+                    active ? 'bg-primary' : 'bg-text-secondary/35 group-hover:bg-text-secondary/55',
+                  )}
+                  style={{ height: `${(m.net / max) * 100}%` }}
+                />
+              </button>
             </li>
           )
         })}
       </ul>
       <div className="mt-1.5 flex gap-1.5 border-t border-border pt-1.5">
         {months.map((m) => (
-          <span key={m.month} className={cn('flex-1 text-center text-[11px]', m.month === selected ? 'font-semibold text-text' : 'text-text-secondary')}>
+          <span
+            key={m.month}
+            className={cn(
+              'flex-1 text-center text-[11px]',
+              m.month === selected ? 'font-semibold text-text' : 'text-text-secondary',
+            )}
+          >
             {m.label}
           </span>
         ))}
@@ -327,66 +421,61 @@ function MonthColumns({ months, selected, onSelect }: { months: ProjectionMonth[
       {shown && (
         <p className="mt-2 text-xs text-text-secondary" aria-live="polite">
           <span className="font-semibold text-text">{shown.label}</span> · take-home {rand(shown.net)}
-          {shown.bonusGross > 0 && <> · includes {rand0(shown.bonusGross)} bonus less {rand0(shown.bonusTax)} tax</>}
+          {shown.bonusGross > 0 && (
+            <>
+              {' '}
+              · includes {rand0(shown.bonusGross)} bonus less {rand0(shown.bonusTax)} tax
+            </>
+          )}
         </p>
       )}
     </div>
   )
 }
 
-function PayslipTable({ m }: { m: ProjectionMonth }) {
-  const s = m.slip
-  // Labels repeat across sections ("Retirement fund" is both a deduction and an
-  // employer contribution), so key rows by position in this fixed layout.
-  let rowIndex = 0
-  const row = (label: string, v: number, strong = false, indent = false) => (
-    <tr key={`row-${rowIndex++}`}>
-      <td className={cn('py-1.5 pr-4', strong ? 'font-semibold text-text' : 'text-text-secondary', indent && 'pl-3')}>{label}</td>
-      <td className={cn('py-1.5 text-right tabular-nums', strong ? 'font-semibold text-text' : 'text-text')}>{rand(v)}</td>
-    </tr>
-  )
-  return (
-    <table className="w-full text-sm">
-      <tbody className="divide-y divide-border">
-        <tr>
-          <th colSpan={2} className="pt-1 pb-1.5 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">
-            Earnings
-          </th>
-        </tr>
-        {row('Basic salary', s.basic, false, true)}
-        {s.allowances.map((a) => row(a.name, a.amount, false, true))}
-        {m.bonusGross > 0 && row('Bonus', m.bonusGross, false, true)}
-        {row('Gross pay', s.grossCash + m.bonusGross, true)}
-        <tr>
-          <th colSpan={2} className="pt-4 pb-1.5 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">
-            Deductions
-          </th>
-        </tr>
-        {row('PAYE', s.paye + m.bonusTax, false, true)}
-        {row('UIF', s.uif, false, true)}
-        {s.employeeRetirement > 0 && row('Retirement fund', s.employeeRetirement, false, true)}
-        {s.employeeMedical > 0 && row('Medical aid (your share)', s.employeeMedical, false, true)}
-        {s.otherDeductions.map((d) => row(d.name, d.amount, false, true))}
-        {row('Net pay', m.net, true)}
-        <tr>
-          <th colSpan={2} className="pt-4 pb-1.5 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">
-            Paid by your employer (not in your net pay)
-          </th>
-        </tr>
-        {s.employer.retirement > 0 && row('Retirement fund', s.employer.retirement, false, true)}
-        {s.employer.medical > 0 && row('Medical aid', s.employer.medical, false, true)}
-        {s.employer.risk > 0 && row('Risk cover', s.employer.risk, false, true)}
-        {row('UIF (employer 1%)', s.employer.uif, false, true)}
-      </tbody>
-    </table>
-  )
-}
+const VIEWS = [
+  { id: '', label: 'Overview' },
+  { id: 'benefits', label: 'Company benefits' },
+  { id: 'medical', label: 'Medical aid' },
+  { id: 'what-if', label: 'What if I…' },
+] as const
 
-export function EmployerCalculator({ profile: p, update }: { profile: EmployerProfile; update: Update }) {
+export function EmployerCalculator({
+  profile: p,
+  update,
+  view = '',
+}: {
+  profile: EmployerProfile
+  update: Update
+  view?: string
+}) {
   const [yearId, setYearId] = useState(TAX_YEARS[0].id)
   const [selected, setSelected] = useState(() => new Date().getMonth() + 1)
-  const [extraRetirement, setExtraRetirement] = useState(0)
+  const [params, setParams] = useSearchParams()
   const year = taxYearById(yearId)
+  const about = params.get('about')
+
+  const open = useCallback(
+    (id: string) =>
+      setParams(
+        (prev) => {
+          const next = new URLSearchParams(prev)
+          next.set('about', id)
+          return next
+        },
+        { replace: false },
+      ),
+    [setParams],
+  )
+  const close = useCallback(
+    () =>
+      setParams((prev) => {
+        const next = new URLSearchParams(prev)
+        next.delete('about')
+        return next
+      }),
+    [setParams],
+  )
 
   if (!p.monthlyAmount) {
     return (
@@ -395,8 +484,9 @@ export function EmployerCalculator({ profile: p, update }: { profile: EmployerPr
         <div className="rounded-lg border border-dashed border-border p-8 text-sm text-text-secondary">
           <p className="font-semibold text-text">Set up your package</p>
           <p className="mt-2">
-            Enter your monthly {p.packageType === 'ctc' ? 'cost-to-company' : 'basic salary'} and the rest of your package
-            on the left. It's saved to your browser and, when cross-device sync is enabled, to your private admin
+            Enter your monthly {p.packageType === 'ctc' ? 'cost-to-company' : 'basic salary'} and the rest of your
+            package on the left — retirement fund, medical aid and the cover the company pays for, as they appear on
+            your payslip. It's saved to your browser and, when cross-device sync is enabled, to your private admin
             storage — never to the code.
           </p>
         </div>
@@ -407,105 +497,160 @@ export function EmployerCalculator({ profile: p, update }: { profile: EmployerPr
   const proj = projectYear(p, year)
   const month = proj.months.find((m) => m.month === selected) ?? proj.months[0]
   const regular = payslip(p, year)
-  const lever = extraRetirement
-    ? payslip({ ...p, retirement: { ...p.retirement, enabled: true, employeePct: p.retirement.employeePct + extraRetirement } }, year)
+  const info = about
+    ? (BENEFIT_BY_ID[about] ??
+      (p.riskBenefits.some((r) => r.id === about)
+        ? riskInfo(about, p.riskBenefits.find((r) => r.id === about)!.name)
+        : null))
     : null
+  const emptyNote: BenefitNote = { terms: '', link: '' }
 
   return (
     <div className="grid gap-8 lg:grid-cols-[22rem_1fr]">
       <ProfileEditor p={p} update={update} />
 
-      <section aria-label="Results" className="space-y-8">
+      <section aria-label="Results" className="min-w-0 space-y-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">Take-home in a normal month</p>
-            <p className="mt-1 text-5xl font-bold tabular-nums text-text">{rand0(regular.net)}</p>
-            <p className="mt-2 text-sm text-text-secondary">
-              from {rand0(p.monthlyAmount)} {p.packageType === 'ctc' ? 'CTC' : 'basic'} · {pct(regular.net / p.monthlyAmount, 0)} of
-              the package
-            </p>
-          </div>
-          <div className="w-40">
+          <nav aria-label="Employer views" className="flex flex-wrap gap-x-5 gap-y-2 border-b border-border">
+            {VIEWS.map((v) => (
+              <NavLink
+                key={v.id}
+                to={v.id ? `/admin/salary/employer/${v.id}` : '/admin/salary/employer'}
+                end
+                className={({ isActive }) =>
+                  cn(
+                    '-mb-px border-b-2 pb-2 text-sm',
+                    isActive
+                      ? 'border-primary font-semibold text-text'
+                      : 'border-transparent text-text-secondary hover:text-text',
+                    focusRing,
+                  )
+                }
+              >
+                {v.label}
+              </NavLink>
+            ))}
+          </nav>
+          <div className="w-36">
             <SelectField
               label="Tax year"
               value={yearId}
               onChange={setYearId}
-              options={TAX_YEARS.map((y) => ({ value: y.id, label: y.label.split(' ')[0] }))}
+              options={TAX_YEARS.map((y) => ({
+                value: y.id,
+                label: y.label.split(' ')[0],
+              }))}
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-6 border-y border-border sm:grid-cols-4 sm:divide-x sm:divide-border sm:gap-x-0 [&>*]:sm:px-5 [&>*:first-child]:sm:pl-0">
-          <Stat label="Take-home this tax year" value={rand0(proj.totals.net)} />
-          <Stat label="PAYE this tax year" value={rand0(proj.totals.paye)} />
-          <Stat label="Effective tax rate" value={pct(proj.actual.effectiveRate)} />
-          <Stat
-            label="At assessment, roughly"
-            value={proj.assessmentDifference >= 0 ? `+${rand0(proj.assessmentDifference)}` : `−${rand0(-proj.assessmentDifference)}`}
-            note={proj.assessmentDifference >= 0 ? 'Refund (PAYE over-withheld)' : 'Owing (PAYE under-withheld)'}
-          />
-        </div>
+        {view === 'benefits' && <BenefitsView p={p} year={year} onOpen={open} />}
+        {view === 'medical' && <MedicalView p={p} year={year} update={update} onOpen={open} />}
+        {view === 'what-if' && <WhatIfView p={p} year={year} />}
 
-        <div>
-          <SectionTitle aside={<span className="text-xs text-text-secondary">Click a month for its payslip</span>}>
-            Take-home, March → February
-          </SectionTitle>
-          <MonthColumns months={proj.months} selected={month.month} onSelect={setSelected} />
-        </div>
-
-        <div className="grid gap-8 xl:grid-cols-2">
-          <div>
-            <SectionTitle>{month.label} payslip (estimate)</SectionTitle>
-            <PayslipTable m={month} />
-          </div>
-          <div className="space-y-8">
+        {view === '' && (
+          <>
             <div>
-              <SectionTitle>Where the package goes each month</SectionTitle>
-              <RankedBars
-                label="Package split"
-                total={regular.packageCheck}
-                rows={[
-                  { label: 'Take-home', value: regular.net, emphasis: true },
-                  { label: 'PAYE', value: regular.paye },
-                  { label: 'Retirement (you)', value: regular.employeeRetirement },
-                  { label: 'Retirement (employer)', value: regular.employer.retirement },
-                  { label: 'Medical aid', value: regular.employeeMedical + regular.employer.medical },
-                  {
-                    label: 'Other',
-                    value:
-                      regular.uif +
-                      regular.otherDeductions.reduce((s, d) => s + d.amount, 0) +
-                      regular.employer.risk +
-                      (p.employerUifInPackage && p.packageType === 'ctc' ? regular.employer.uif : 0),
-                    note: 'UIF, risk cover and other payroll deductions',
-                  },
-                ]}
+              <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
+                Take-home in a normal month
+              </p>
+              <p className="mt-1 text-5xl font-bold tabular-nums text-text">{rand0(regular.net)}</p>
+              <p className="mt-2 text-sm text-text-secondary">
+                from {rand0(p.monthlyAmount)} {p.packageType === 'ctc' ? 'CTC' : 'basic'} ·{' '}
+                {pct(regular.net / p.monthlyAmount, 0)} of the package
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-x-6 border-y border-border sm:grid-cols-4 sm:divide-x sm:divide-border sm:gap-x-0 [&>*]:sm:px-5 [&>*:first-child]:sm:pl-0">
+              <Stat label="Take-home this tax year" value={rand0(proj.totals.net)} />
+              <Stat label="PAYE this tax year" value={rand0(proj.totals.paye)} />
+              <Stat label="Effective tax rate" value={pct(proj.actual.effectiveRate)} />
+              <Stat
+                label="At assessment, roughly"
+                value={
+                  Math.abs(proj.assessmentDifference) < 1
+                    ? rand0(0)
+                    : proj.assessmentDifference > 0
+                      ? `+${rand0(proj.assessmentDifference)}`
+                      : `−${rand0(-proj.assessmentDifference)}`
+                }
+                note={
+                  Math.abs(proj.assessmentDifference) < 1
+                    ? 'PAYE matches the year’s tax'
+                    : proj.assessmentDifference > 0
+                      ? 'Refund (PAYE over-withheld)'
+                      : 'Owing (PAYE under-withheld)'
+                }
               />
             </div>
 
-            <div className="rounded-lg border border-border p-4">
-              <SectionTitle>Lever: contribute more to retirement</SectionTitle>
-              <NumberField
-                label="Extra contribution"
-                suffix="%"
-                step={0.5}
-                max={20}
-                value={extraRetirement}
-                onChange={setExtraRetirement}
-                hint={`On top of your current ${p.retirement.enabled ? p.retirement.employeePct : 0}%.`}
-              />
-              {lever && (
-                <p className="mt-3 text-sm text-text">
-                  Saves <span className="font-semibold">{rand0(lever.employeeRetirement - regular.employeeRetirement)}</span> more a
-                  month for retirement, but take-home only drops by{' '}
-                  <span className="font-semibold">{rand0(regular.net - lever.net)}</span> — SARS funds{' '}
-                  <span className="font-semibold">{rand0(regular.paye - lever.paye)}</span> of it through lower PAYE.
-                </p>
-              )}
+            <div>
+              <SectionTitle aside={<span className="text-xs text-text-secondary">Click a month for its payslip</span>}>
+                Take-home, March → February
+              </SectionTitle>
+              <MonthColumns months={proj.months} selected={month.month} onSelect={setSelected} />
             </div>
-          </div>
-        </div>
+
+            <div className="grid gap-8 2xl:grid-cols-[minmax(0,1fr)_22rem]">
+              <div>
+                <SectionTitle
+                  aside={<span className="text-xs text-text-secondary">Click a line to see what it means</span>}
+                >
+                  {month.label} payslip (estimate)
+                </SectionTitle>
+                <Payslip m={month} p={p} onOpen={open} />
+              </div>
+              <div>
+                <SectionTitle>Where the package goes each month</SectionTitle>
+                <RankedBars
+                  label="Package split"
+                  total={regular.packageCheck}
+                  rows={[
+                    { label: 'Take-home', value: regular.net, emphasis: true },
+                    { label: 'PAYE', value: regular.paye },
+                    {
+                      label: 'Retirement (you)',
+                      value: regular.employeeRetirement,
+                    },
+                    {
+                      label: 'Retirement (company)',
+                      value: regular.employer.retirement,
+                    },
+                    {
+                      label: 'Medical aid',
+                      value: regular.employeeMedical + regular.employer.medical,
+                    },
+                    {
+                      label: 'Company cover',
+                      value: regular.employer.risk,
+                      note: 'Funeral, death & disability',
+                    },
+                    {
+                      label: 'Other',
+                      value:
+                        regular.uif +
+                        regular.otherDeductions.reduce((s, d) => s + d.amount, 0) +
+                        (p.employerUifInPackage && p.packageType === 'ctc' ? regular.employer.uif : 0),
+                      note: 'UIF and other payroll deductions',
+                    },
+                  ]}
+                />
+              </div>
+            </div>
+          </>
+        )}
       </section>
+
+      {info && (
+        <BenefitDrawer
+          key={info.id}
+          info={info}
+          figures={figuresFor(info.id, p, year)}
+          note={p.notes[info.id] ?? emptyNote}
+          onNote={(n) => update((cur) => ({ ...cur, notes: { ...cur.notes, [info.id]: n } }))}
+          onClose={close}
+        />
+      )}
     </div>
   )
 }

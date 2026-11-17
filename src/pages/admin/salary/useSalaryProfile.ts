@@ -20,17 +20,28 @@ function isProfile(v: unknown): v is EmployerProfile {
 }
 
 /** Fill any fields added after a profile was saved, so old profiles keep working. */
-function withDefaults(p: EmployerProfile): EmployerProfile {
+function withDefaults(p: EmployerProfile & { employerRiskMonthly?: number }): EmployerProfile {
   const d = emptyProfile()
+  // v1 profiles had a single employerRiskMonthly figure instead of named cover lines.
+  const legacyRisk = p.employerRiskMonthly
+  const { employerRiskMonthly: _drop, ...rest } = p
+  void _drop
   return {
     ...d,
-    ...p,
-    retirement: { ...d.retirement, ...p.retirement },
+    ...rest,
+    retirement: {
+      ...d.retirement,
+      ...p.retirement,
+      additional: { ...d.retirement.additional, ...p.retirement?.additional },
+    },
     medical: { ...d.medical, ...p.medical },
     bonus: { ...d.bonus, ...p.bonus },
     increase: { ...d.increase, ...p.increase },
     allowances: p.allowances ?? [],
     deductions: p.deductions ?? [],
+    riskBenefits:
+      p.riskBenefits ?? (legacyRisk ? [{ id: 'risk', name: 'Risk cover', monthly: legacyRisk }] : d.riskBenefits),
+    notes: p.notes ?? {},
   }
 }
 
@@ -65,7 +76,9 @@ export function useSalaryProfile() {
       const local = readLocal()
       let remote: EmployerProfile | null | undefined
       try {
-        const res = await fetch(ENDPOINT, { headers: { Accept: 'application/json' } })
+        const res = await fetch(ENDPOINT, {
+          headers: { Accept: 'application/json' },
+        })
         if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
           const body: unknown = await res.json()
           remote = isProfile(body) ? withDefaults(body) : null
