@@ -5,9 +5,11 @@
   "compatibility_date": "2025-09-04",
   "pages_build_output_dir": "dist"
 
-  // Optional — syncs /admin/roadmap progress across devices. Without it,
-  // progress is saved per-browser. Create the namespace once with
-  //   npx wrangler kv namespace create ROADMAP_KV
+  // Optional — syncs /admin/roadmap progress and the /admin/salary profile
+  // across devices. Without it, both are saved per-browser. Create the
+  // namespace once with
+  //   npx wrangler kv namespace create ADMIN_KV
   // then uncomment below (add a comma after the line above) and paste the id.
-  // "kv_namespaces": [{ "binding": "ROADMAP_KV", "id": "<namespace-id>" }]
+  // (The older binding name ROADMAP_KV is still accepted.)
+  // "kv_namespaces": [{ "binding": "ADMIN_KV", "id": "<namespace-id>" }]
 }

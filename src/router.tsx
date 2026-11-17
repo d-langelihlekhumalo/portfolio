@@ -14,6 +14,8 @@ const ProjectCaseStudyPage = lazy(() => import('@/pages/ProjectCaseStudyPage'))
 const AdminApp = lazy(() => import('@/pages/admin/AdminApp'))
 // Private learning roadmap — also under /admin, so the same Access gate covers it.
 const RoadmapPage = lazy(() => import('@/pages/admin/roadmap/RoadmapPage'))
+// Private salary & tax calculators — same /admin gate; figures never in the repo.
+const SalaryPage = lazy(() => import('@/pages/admin/salary/SalaryPage'))
 
 function RouteFallback() {
   return <div className="min-h-[50vh]" aria-hidden="true" />
@@ -55,6 +57,17 @@ function AppRouter({ isDark, onToggleDarkMode }: AppRouterProps) {
         />
       </Route>
 
+      {['/admin/salary', '/admin/salary/:section'].map((path) => (
+        <Route
+          key={path}
+          path={path}
+          element={
+            <Suspense fallback={<RouteFallback />}>
+              <SalaryPage />
+            </Suspense>
+          }
+        />
+      ))}
       {['/admin/roadmap', '/admin/roadmap/:itemId'].map((path) => (
         <Route
           key={path}

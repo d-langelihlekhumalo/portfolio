@@ -32,6 +32,9 @@ export function AdminHeader({ draftCount }: AdminHeaderProps) {
           <Link to="/admin/roadmap" className="hover:text-primary transition-colors">
             Learning roadmap
           </Link>
+          <Link to="/admin/salary" className="hover:text-primary transition-colors">
+            Salary &amp; tax
+          </Link>
         </nav>
       </div>
 
