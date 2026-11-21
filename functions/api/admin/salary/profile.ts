@@ -12,7 +12,8 @@ interface Env {
 }
 
 const KEY = 'salary:profile:v1'
-const MAX_BYTES = 64 * 1024
+// Room for your own benefit notes; KV allows far more, this just stops runaway writes.
+const MAX_BYTES = 256 * 1024
 
 const kv = (env: Env) => env.ADMIN_KV ?? env.ROADMAP_KV
 
@@ -24,7 +25,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
   const store = kv(env)
   if (!store) return notConfigured()
   const stored = await store.get(KEY)
-  return new Response(stored ?? 'null', { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } })
+  return new Response(stored ?? 'null', {
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+  })
 }
 
 async function save({ request, env }: EventContext<Env, string, unknown>): Promise<Response> {

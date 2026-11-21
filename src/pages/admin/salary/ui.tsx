@@ -1,8 +1,17 @@
-import { useId, useState, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { X } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
-const zar = new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR', minimumFractionDigits: 2 })
-const zar0 = new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR', maximumFractionDigits: 0 })
+const zar = new Intl.NumberFormat('en-ZA', {
+  style: 'currency',
+  currency: 'ZAR',
+  minimumFractionDigits: 2,
+})
+const zar0 = new Intl.NumberFormat('en-ZA', {
+  style: 'currency',
+  currency: 'ZAR',
+  maximumFractionDigits: 0,
+})
 
 // `|| 0` turns -0 into 0, so a zero deduction never shows as "-R 0,00".
 export const rand = (n: number) => zar.format(Number.isFinite(n) ? n || 0 : 0)
@@ -17,7 +26,15 @@ export const inputClass = cn(
   'placeholder:text-text-secondary focus:outline-2 focus:outline-primary focus:outline-offset-2',
 )
 
-export function Field({ label, hint, children }: { label: string; hint?: string; children: (id: string) => ReactNode }) {
+export function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string
+  hint?: string
+  children: (id: string) => ReactNode
+}) {
   const id = useId()
   return (
     <div>
@@ -125,7 +142,17 @@ export function SelectField<T extends string | number>({
   )
 }
 
-export function Toggle({ label, checked, onChange, hint }: { label: string; checked: boolean; onChange: (b: boolean) => void; hint?: string }) {
+export function Toggle({
+  label,
+  checked,
+  onChange,
+  hint,
+}: {
+  label: string
+  checked: boolean
+  onChange: (b: boolean) => void
+  hint?: string
+}) {
   return (
     <div>
       <label className="flex cursor-pointer items-center gap-2 text-sm text-text">
@@ -179,8 +206,14 @@ export function RankedBars({
   return (
     <ul className="space-y-2.5" aria-label={label}>
       {sorted.map((r) => (
-        <li key={r.label} className="grid grid-cols-[6.5rem_1fr_auto] items-center gap-3 text-sm sm:grid-cols-[10.5rem_1fr_auto]">
-          <span className={cn('truncate', r.emphasis ? 'font-semibold text-text' : 'text-text-secondary')} title={r.note}>
+        <li
+          key={r.label}
+          className="grid grid-cols-[6.5rem_1fr_auto] items-center gap-3 text-sm sm:grid-cols-[10.5rem_1fr_auto]"
+        >
+          <span
+            className={cn('truncate', r.emphasis ? 'font-semibold text-text' : 'text-text-secondary')}
+            title={r.note}
+          >
             {r.label}
           </span>
           <span
@@ -204,7 +237,15 @@ export function RankedBars({
   )
 }
 
-export function Disclosure({ title, children, defaultOpen = false }: { title: string; children: ReactNode; defaultOpen?: boolean }) {
+export function Disclosure({
+  title,
+  children,
+  defaultOpen = false,
+}: {
+  title: string
+  children: ReactNode
+  defaultOpen?: boolean
+}) {
   return (
     <details open={defaultOpen} className="group rounded-lg border border-border">
       <summary
@@ -221,5 +262,69 @@ export function Disclosure({ title, children, defaultOpen = false }: { title: st
       </summary>
       <div className="space-y-4 border-t border-border px-4 py-4">{children}</div>
     </details>
+  )
+}
+
+/**
+ * Right-hand side drawer (modal dialog). Focuses the close button on open,
+ * closes on Escape or backdrop click, and hands focus back to the opener.
+ */
+export function Drawer({
+  title,
+  eyebrow,
+  onClose,
+  children,
+}: {
+  title: string
+  eyebrow?: ReactNode
+  onClose: () => void
+  children: ReactNode
+}) {
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const titleId = useId()
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null
+    closeRef.current?.focus()
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    document.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+      opener?.focus?.()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  return (
+    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <button
+        type="button"
+        aria-label="Close panel"
+        tabIndex={-1}
+        onClick={onClose}
+        className="absolute inset-0 h-full w-full cursor-default bg-background/70"
+      />
+      <aside className="absolute inset-y-0 right-0 flex w-full flex-col border-l border-border bg-background sm:w-[480px]">
+        <header className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
+          <div className="min-w-0">
+            {eyebrow && <p className="text-xs text-text-secondary">{eyebrow}</p>}
+            <h2 id={titleId} className="mt-1 text-xl font-bold leading-snug text-text">
+              {title}
+            </h2>
+          </div>
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className={cn('rounded-lg p-1.5 text-text-secondary hover:text-text', focusRing)}
+          >
+            <X aria-hidden="true" className="h-5 w-5" />
+          </button>
+        </header>
+        <div className="flex-1 space-y-7 overflow-y-auto px-5 py-6">{children}</div>
+      </aside>
+    </div>
   )
 }

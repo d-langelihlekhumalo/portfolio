@@ -57,7 +57,7 @@ function AppRouter({ isDark, onToggleDarkMode }: AppRouterProps) {
         />
       </Route>
 
-      {['/admin/salary', '/admin/salary/:section'].map((path) => (
+      {['/admin/salary', '/admin/salary/:section', '/admin/salary/:section/:view'].map((path) => (
         <Route
           key={path}
           path={path}

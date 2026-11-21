@@ -34,7 +34,7 @@ function SyncBadge({ mode, saveStatus }: { mode: SyncMode; saveStatus: SaveStatu
  * the package rules; the figures live in the browser / KV, never in the repo.
  */
 function SalaryPage() {
-  const { section } = useParams()
+  const { section, view } = useParams()
   const employer = section === 'employer'
   const salary = useSalaryProfile()
 
@@ -99,7 +99,11 @@ function SalaryPage() {
       </header>
 
       <main className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6">
-        {employer ? <EmployerCalculator profile={salary.profile} update={salary.update} /> : <GeneralCalculator />}
+        {employer ? (
+          <EmployerCalculator profile={salary.profile} update={salary.update} view={view} />
+        ) : (
+          <GeneralCalculator />
+        )}
 
         <footer className="mt-12 space-y-2 border-t border-border pt-6 text-xs text-text-secondary">
           <p>
@@ -114,8 +118,8 @@ function SalaryPage() {
             ))}
           </p>
           <p>
-            Not covered: additional medical expenses credits (s6B), travel logbook claims, and anything else only settled
-            when you file. Not tax advice.
+            Not covered: travel logbook claims and anything else only settled when you file. The s6B medical credit is
+            an estimate. Not tax advice.
           </p>
           {employer && (
             <p>

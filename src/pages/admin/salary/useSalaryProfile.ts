@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { emptyProfile, type EmployerProfile } from './employer'
+import { emptyProfile, syncMedical, type EmployerProfile } from './employer'
 
 /*
  * Same persistence model as the roadmap: always in localStorage, and in Workers
@@ -20,18 +20,36 @@ function isProfile(v: unknown): v is EmployerProfile {
 }
 
 /** Fill any fields added after a profile was saved, so old profiles keep working. */
-function withDefaults(p: EmployerProfile): EmployerProfile {
+function withDefaults(p: EmployerProfile & { employerRiskMonthly?: number }): EmployerProfile {
   const d = emptyProfile()
-  return {
+  // v1 profiles had a single employerRiskMonthly figure instead of named cover lines.
+  const legacyRisk = p.employerRiskMonthly
+  const { employerRiskMonthly: _drop, ...rest } = p
+  void _drop
+  return syncMedical({
     ...d,
-    ...p,
-    retirement: { ...d.retirement, ...p.retirement },
-    medical: { ...d.medical, ...p.medical },
+    ...rest,
+    retirement: {
+      ...d.retirement,
+      ...p.retirement,
+      additional: { ...d.retirement.additional, ...p.retirement?.additional },
+    },
+    medical: {
+      ...d.medical,
+      ...p.medical,
+      // Profiles from before per-person rates stored totals directly.
+      mode: p.medical?.mode ?? (p.medical ? 'total' : 'plan'),
+      rates: { ...d.medical.rates, ...p.medical?.rates },
+      msa: { ...d.medical.msa, ...p.medical?.msa },
+    },
     bonus: { ...d.bonus, ...p.bonus },
     increase: { ...d.increase, ...p.increase },
     allowances: p.allowances ?? [],
     deductions: p.deductions ?? [],
-  }
+    riskBenefits:
+      p.riskBenefits ?? (legacyRisk ? [{ id: 'risk', name: 'Risk cover', monthly: legacyRisk }] : d.riskBenefits),
+    notes: p.notes ?? {},
+  })
 }
 
 function readLocal(): EmployerProfile | null {
@@ -65,7 +83,9 @@ export function useSalaryProfile() {
       const local = readLocal()
       let remote: EmployerProfile | null | undefined
       try {
-        const res = await fetch(ENDPOINT, { headers: { Accept: 'application/json' } })
+        const res = await fetch(ENDPOINT, {
+          headers: { Accept: 'application/json' },
+        })
         if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
           const body: unknown = await res.json()
           remote = isProfile(body) ? withDefaults(body) : null
@@ -115,7 +135,7 @@ export function useSalaryProfile() {
 
   const update = useCallback((fn: (p: EmployerProfile) => EmployerProfile) => {
     dirty.current = true
-    setProfile((p) => ({ ...fn(p), updatedAt: new Date().toISOString() }))
+    setProfile((p) => ({ ...syncMedical(fn(p)), updatedAt: new Date().toISOString() }))
   }, [])
 
   const reset = useCallback(() => {
