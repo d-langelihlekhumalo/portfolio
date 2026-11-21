@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { AdminNav } from '../AdminNav'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
-  ArrowLeft,
   Cloud,
   CloudOff,
   Download,
@@ -236,18 +236,7 @@ function RoadmapPage() {
     <div className="min-h-screen bg-background text-text">
       <header className="border-b border-border bg-surface/40">
         <div className="mx-auto max-w-[1280px] px-4 pt-6 sm:px-6">
-          <nav className="flex flex-wrap items-center gap-5 text-sm text-text-secondary">
-            <Link to="/" className="inline-flex items-center gap-1.5 hover:text-primary">
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              Back to site
-            </Link>
-            <Link to="/admin" className="hover:text-primary">
-              Blog admin
-            </Link>
-            <Link to="/admin/salary" className="hover:text-primary">
-              Salary &amp; tax
-            </Link>
-          </nav>
+          <AdminNav />
         </div>
         <div className="mx-auto flex max-w-[1280px] flex-wrap items-end justify-between gap-4 px-4 pb-8 pt-6 sm:px-6">
           <div>
