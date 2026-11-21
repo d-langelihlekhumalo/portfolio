@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
-import { Link, NavLink, useParams } from 'react-router-dom'
-import { ArrowLeft, Cloud, CloudOff, HardDrive } from 'lucide-react'
+import { AdminNav } from '../AdminNav'
+import { NavLink, useParams } from 'react-router-dom'
+import { Cloud, CloudOff, HardDrive } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { CURRENT_YEAR } from './taxTables'
 import { GeneralCalculator } from './GeneralCalculator'
@@ -66,18 +67,7 @@ function SalaryPage() {
     <div className="min-h-screen bg-background text-text">
       <header className="border-b border-border bg-surface/40">
         <div className="mx-auto max-w-[1280px] px-4 pt-6 sm:px-6">
-          <nav className="flex flex-wrap items-center gap-5 text-sm text-text-secondary">
-            <Link to="/" className="inline-flex items-center gap-1.5 hover:text-primary">
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              Back to site
-            </Link>
-            <Link to="/admin" className="hover:text-primary">
-              Blog admin
-            </Link>
-            <Link to="/admin/roadmap" className="hover:text-primary">
-              Learning roadmap
-            </Link>
-          </nav>
+          <AdminNav />
         </div>
         <div className="mx-auto flex max-w-[1280px] flex-wrap items-end justify-between gap-4 px-4 pb-6 pt-6 sm:px-6">
           <div>
